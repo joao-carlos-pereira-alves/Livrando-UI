@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md col-12 row q-gutter-md">
+  <div class="q-pa-md col-12 row q-gutter-md items-center">
     <q-card class="my-card col-md-4 col-xs-12">
       <q-card-section>
         <span class="welcome text-grey-9">Bem-vindo !</span>

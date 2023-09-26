@@ -48,7 +48,7 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "baseURL": "https://jsonplaceholder.typicode.com"
+    "baseURL": "undefined/api/v1"
   }
 };
 const ENV_PREFIX = "NITRO_";
