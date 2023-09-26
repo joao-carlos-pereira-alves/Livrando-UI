@@ -100,7 +100,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { authentication } from "../store/modules/authentication";
 
+const { login } = authentication();
 const loginForm = ref(null);
 const props = defineProps({
   isLoginAction: {
@@ -127,7 +129,9 @@ const onSubmit = () => {
 
   loginForm.value.validate().then((res: boolean) => {
     if (res) {
-      // TODO: Criar requisição de login e salvar o token no local storage.
+      if (process.client) {
+        login(userAthentication.value);
+      }
     }
   });
 };

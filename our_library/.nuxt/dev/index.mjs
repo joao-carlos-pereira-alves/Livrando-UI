@@ -48,7 +48,7 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "baseURL": "undefined/api/v1"
+    "baseURL": "http://localhost:3000/api/v1"
   }
 };
 const ENV_PREFIX = "NITRO_";

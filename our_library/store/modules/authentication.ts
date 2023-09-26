@@ -1,15 +1,11 @@
 /* eslint-disable */
-// import { axios } from "../../plugins/axios";
 import jwtDecode from "jwt-decode";
 import { defineStore } from "pinia";
-// import router from "../../router";
 // import { Notify } from "quasar";
-// import App from "../../main.ts";
-
 
 export const authentication = defineStore("authentication", {
   state: () => ({
-    _auth: JSON.parse(localStorage._auth || "{}"),
+    _auth: process.client ? JSON.parse(localStorage ? localStorage._auth : "{}") : "{}"
   }),
   getters: {
     jwtPayload(): any {
@@ -25,15 +21,17 @@ export const authentication = defineStore("authentication", {
   actions: {
     async login(user: Object) {
       try {
+        const router = useRouter()
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const response = await useApi("/sign_in", {
+        const response = await useApi("/login", '/', {
           method: "post",
-          params: {
+          body: {
             user: user
           },
-        })
+        }
+        )
 
         this._auth = response.data;
         localStorage._auth = JSON.stringify(this._auth);
