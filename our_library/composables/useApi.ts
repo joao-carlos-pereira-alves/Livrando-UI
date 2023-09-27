@@ -11,8 +11,6 @@ export const useApi: typeof useFetch = (request, next_path, opts?) => {
       const token: String = _auth?.token
       options.headers = options.headers || {}
 
-      console.log('o authentication(): ', token)
-
       if (token) {
         options.headers.authorization = `Bearer ${token}`
       }

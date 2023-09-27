@@ -102,21 +102,36 @@
 
 <script setup lang="ts">
 import BookComponent from "~/layouts/bookComponent.vue";
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 
 const category = ref();
 const bookPagination = ref({
   page: 1,
-  total: 3,
+  per_page: 4,
+  total: 0,
 });
-const response = await useApi("/posts", {
-  method: "post",
-  params: {
-    name: "id labore ex et quam laborum",
-    email: "Eliseo@gardner.biz",
-    body: "laudantium enim quasi est quidem magnam voluptate ipsam eos\ntempora quo necessitatibus\ndolor quam autem quasi\nreiciendis et nam sapiente accusantium",
-  },
-});
+const books = []
 
-console.log(response.data);
+const getBooks = async () => {
+  try {
+    const response = await useApi("/books", {
+      method: "get",
+      params: {
+        ...bookPagination
+      },
+    });
+
+    if (response?.data) {
+      console.log('aqui: ', response.data)
+    }
+  } catch (error) {
+    
+  }
+}
+
+onBeforeMount(() => {
+  getBooks()
+})
+
+
 </script>
