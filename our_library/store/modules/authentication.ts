@@ -2,14 +2,15 @@
 import jwtDecode from "jwt-decode";
 import { defineStore } from "pinia";
 // import { Notify } from "quasar";
+import { useRouter } from '#imports'
 
 export const authentication = defineStore("authentication", {
   state: () => ({
-    _auth: process.client ? JSON.parse(localStorage ? localStorage._auth : "{}") : "{}"
+    _auth: process.client ? JSON.parse(localStorage?._auth ? localStorage._auth : "{}") : "{}"
   }),
   getters: {
     jwtPayload(): any {
-      if (!(this._auth && this._auth.token)) {
+      if (!(this?._auth?.token)) {
       }
 
       return jwtDecode(String(this._auth.token));
@@ -20,12 +21,12 @@ export const authentication = defineStore("authentication", {
   },
   actions: {
     async login(user: Object) {
+      const router = useRouter();
       try {
-        const router = useRouter()
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const response = await useApi("/login", '/', {
+        const response = await useApi("/login", {
           method: "post",
           body: {
             user: user
@@ -47,6 +48,10 @@ export const authentication = defineStore("authentication", {
         //   name: "Dashboard",
         //   query: { ...router?.currentRoute?.value?.query },
         // });
+        router.push({
+          path: '/'
+        })
+        return true;
       } catch (error) {
         console.log(error);
         // Notify.create({

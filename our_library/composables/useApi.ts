@@ -1,6 +1,6 @@
 import { authentication } from "../store/modules/authentication";
 
-export const useApi: typeof useFetch = (request, next_path, opts?) => {
+export const useApi: typeof useFetch = (request, opts?) => {
   const config = useRuntimeConfig();
   const router = useRouter()
   const useAuthentication = authentication();
@@ -14,9 +14,6 @@ export const useApi: typeof useFetch = (request, next_path, opts?) => {
       if (token) {
         options.headers.authorization = `Bearer ${token}`
       }
-    },
-    onResponse({ request, response, options }) {
-      router.push({ path: next_path })
     },
     baseURL: config.public.baseURL, 
     ...opts 
