@@ -1,6 +1,6 @@
 
 import { updateAppConfig } from '#app'
-import { defuFn } from '/home/dopaminado/tcc/TCC-Frontend/our_library/node_modules/defu/dist/defu.mjs'
+import { defuFn } from '/Users/soliver/Desktop/Studies/TCC-Frontend/our_library/node_modules/defu/dist/defu.mjs'
 
 const inlineConfig = {}
 

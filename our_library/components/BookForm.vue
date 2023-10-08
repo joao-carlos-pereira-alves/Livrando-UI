@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="row justify-end">
-            <q-btn label="Cancelar" type="reset" color="grey-7" outline="" class="q-ml-sm text-grey-7 q-mr-sm" />
+            <q-btn label="Cancelar" type="reset" outlined color="grey-7" class="q-ml-sm q-mr-sm" />
             <q-btn label="Publicar" type="submit" color="red-10" />
           </div>
         </q-form>

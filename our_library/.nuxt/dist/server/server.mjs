@@ -1,1 +1,1 @@
-export { default } from "file:///home/dopaminado/tcc/TCC-Frontend/our_library/node_modules/@nuxt/vite-builder/dist/runtime/vite-node.mjs"
+export { default } from "file:///Users/soliver/Desktop/Studies/TCC-Frontend/our_library/node_modules/@nuxt/vite-builder/dist/runtime/vite-node.mjs"

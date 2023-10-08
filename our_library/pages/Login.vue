@@ -12,23 +12,12 @@
         <q-form ref="loginForm">
           <div class="q-mb-md" v-if="!isLoginAction">
             <label class="form-label">Nome</label>
-            <q-input
-              outlined
-              v-model="userAthentication.name"
-              placeholder="Insira seu nome"
-            />
+            <q-input outlined v-model="userAthentication.name" placeholder="Insira seu nome" />
           </div>
           <div class="q-mb-md">
             <label class="form-label">Email</label>
-            <q-input
-              type="email"
-              outlined
-              v-model="userAthentication.email"
-              placeholder="Insira seu e-mail"
-              lazy-rules
-              :rules="[rules.required, rules.email]"
-              @keypress.enter="onSubmit"
-            >
+            <q-input type="email" outlined v-model="userAthentication.email" placeholder="Insira seu e-mail" lazy-rules
+              :rules="[rules.required, rules.email]" @keypress.enter="onSubmit">
               <template v-slot:prepend>
                 <q-icon name="mail_outline" color="black" />
               </template>
@@ -36,15 +25,8 @@
           </div>
           <div class="q-mb-md">
             <label class="form-label">Senha</label>
-            <q-input
-              type="password"
-              outlined
-              v-model="userAthentication.password"
-              placeholder="Insira sua senha"
-              lazy-rules
-              :rules="[rules.required]"
-              @keypress.enter="onSubmit"
-            >
+            <q-input type="password" outlined v-model="userAthentication.password" placeholder="Insira sua senha"
+              lazy-rules :rules="[rules.required]" @keypress.enter="onSubmit">
               <template v-slot:prepend>
                 <q-icon name="lock_outline" color="black" />
               </template>
@@ -52,12 +34,7 @@
           </div>
           <div class="q-mb-md" v-if="!isLoginAction">
             <label class="form-label">Confirmar Senha</label>
-            <q-input
-              type="password"
-              outlined
-              v-model="userAthentication.confirmPassword"
-              label="Insira sua senha"
-            />
+            <q-input type="password" outlined v-model="userAthentication.confirmPassword" label="Insira sua senha" />
           </div>
           <div class="row">
             <div class="col-6">
@@ -69,18 +46,14 @@
             </div>
           </div>
           <div class="col-3 form-actions">
-            <q-btn
-              class="bg-red-10 text-grey-1 col-12"
-              style="margin-bottom: 2em"
-              @click="onSubmit"
-            >
+            <q-btn class="bg-red-10 text-grey-1 col-12" style="margin-bottom: 2em" @click="onSubmit">
               {{ isLoginAction ? "Login" : "Cadastrar" }}
             </q-btn>
             <span align="center" class="col-12 form-actions-label">
               {{
                 isLoginAction
-                  ? "Você não tem uma conta?"
-                  : "Você já tem uma conta ?"
+                ? "Você não tem uma conta?"
+                : "Você já tem uma conta ?"
               }}
               <a>{{ isLoginAction ? "Cadastrar" : "Login" }}</a>
             </span>
@@ -89,11 +62,7 @@
       </q-card-section>
     </q-card>
     <div class="col-7">
-      <q-img
-        src="../public/images/login-ilustration.svg"
-        class="q-ml-xl"
-        spinner-color="white"
-      />
+      <q-img src="../public/images/login-ilustration.svg" class="q-ml-xl" spinner-color="white" />
     </div>
   </div>
 </template>
