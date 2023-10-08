@@ -5,48 +5,27 @@
         <h3 class="text-red-10 text-weight-bold">Livros</h3>
       </div>
       <q-card class="col-12 row align-center shadow-0">
-        <q-card-section
-          class="col-12 row align-center items-center justify-between"
-        >
-          <div
-            class="col-12 col-sm-12 col-md-2 col-lg-1 row align-center justify-center"
-          >
-            <q-btn
-              class="text-white full-width"
-              style="background-color: brown"
-            >
+        <q-card-section class="col-12 row align-center items-center justify-between">
+          <div class="col-12 col-sm-12 col-md-2 col-lg-1 row align-center justify-center">
+            <q-btn class="text-white full-width" style="background-color: brown" @click="openBookForm = true">
               Novos Livros
             </q-btn>
           </div>
-          <div
-            class="col-12 col-sm-12 col-md-2 col-lg-1"
-            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }"
-          >
+          <div class="col-12 col-sm-12 col-md-2 col-lg-1" :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }">
             <q-btn class="text-red-10 full-width" outline> Categoria </q-btn>
           </div>
-          <div
-            class="col-12 col-sm-9 col-md-6 col-lg-8 row justify-center"
-            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs }"
-          >
-            <q-input
-              class="full-width"
-              rounded
-              standout
-              v-model="text"
-              placeholder="Pesquisar livro"
-            >
+          <div class="col-12 col-sm-9 col-md-6 col-lg-8 row justify-center"
+            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs }">
+            <q-input class="full-width" rounded standout v-model="text" placeholder="Pesquisar livro">
               <template v-slot:prepend>
                 <q-icon name="menu" color="gray" />
               </template>
             </q-input>
           </div>
-          <div
-            class="col-12 col-sm-2 col-md-1"
-            :class="{
-              'q-mr-md': !$q.screen.xs,
-              'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs,
-            }"
-          >
+          <div class="col-12 col-sm-2 col-md-1" :class="{
+            'q-mr-md': !$q.screen.xs,
+            'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs,
+          }">
             <q-btn class="text-red-10 full-width" outline> Ver Mais </q-btn>
           </div>
         </q-card-section>
@@ -148,6 +127,7 @@ const bookPagination = ref({
   total: 0,
   dashboard_view: true,
 });
+
 const bookPaginationPage = computed(() => bookPagination.value.page);
 const books = ref([]);
 const popularBooks = ref([]);
@@ -156,8 +136,9 @@ const popularBookPagination = ref({
   per_page: 4,
   total: 0,
   dashboard_view: true,
-  is_popular: true,
+  is_popular: true
 });
+
 const popularBookPaginationPage = computed(
   () => popularBookPagination.value.page
 );
