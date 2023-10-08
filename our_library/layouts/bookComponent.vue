@@ -8,7 +8,7 @@
       />
     </q-card-section>
     <q-card-section class="row">
-      <div class="col-12"> {{ book.title }}</div>
+      <div class="col-12">{{ book.title }}</div>
       <div class="col-12">
         <small> by {{ book.author }} </small>
       </div>
@@ -16,31 +16,94 @@
         {{ negotiationTypes[book.negotiation_type] }}
       </div>
       <div class="col-6 text-right">
-        <q-icon name="favorite_outline" size="sm" />
+        <q-icon
+          @click="handle_like()"
+          class="link"
+          :name="liked ? 'favorite' : 'favorite_outline'"
+          size="sm"
+        />
       </div>
     </q-card-section>
   </q-card>
 </template>
 
 <script>
+import { toRefs, ref, onMounted } from "vue";
+import { authentication } from "../store/modules/authentication";
+
 export default {
   props: {
     book: {
       required: true,
       type: Object,
-    }
+    },
   },
-  setup() {
+  setup(props) {
+    const { book } = toRefs(props);
+    const { _auth } = authentication();
+    const liked = ref(false);
+    const user_id = _auth.id;
     const negotiationTypes = {
-      replacement: 'Troca',
-      loan: 'Empréstimo',
-      donation: 'Doação'
+      replacement: "Troca",
+      loan: "Empréstimo",
+      donation: "Doação",
+    };
+
+    const like = async () => {
+      try {
+        await useApi("/favorite_books", {
+          method: "post",
+          body: {
+            favorite_book: {
+              user_id: user_id,
+              book_id: book.value.id
+            }
+          },
+          lazy: true
+        });
+
+        liked.value = true;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const deslike = async () => {
+      try {
+        await useApi(`/favorite_books/deslike`, {
+          method: "post",
+          params: {
+            book_id: book.value.id
+          },
+          lazy: true,
+        });
+
+        liked.value = false;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    const handle_like = () => {
+      if (book.value?.liked || liked.value) {
+        deslike();
+      } else {
+        like()
+      }
     }
 
+    onMounted(() => {
+      liked.value = book.value?.favorited;
+    });
+
     return {
-      negotiationTypes
-    }
-  }
+      negotiationTypes,
+      like,
+      deslike,
+      liked,
+      handle_like
+    };
+  },
 };
 </script>
 
@@ -55,7 +118,9 @@ export default {
   position: relative;
   margin-top: -40px;
   height: 300px;
-  transform: skewY(-2deg); /* Inclinação para cima, ajuste o ângulo conforme necessário */
-  transform-origin: top; 
+  transform: skewY(
+    -2deg
+  ); /* Inclinação para cima, ajuste o ângulo conforme necessário */
+  transform-origin: top;
 }
 </style>
