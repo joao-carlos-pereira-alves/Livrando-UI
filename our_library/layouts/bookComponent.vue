@@ -1,5 +1,5 @@
 <template>
-  <q-card class="shadow-0 ">
+  <q-card class="shadow-0">
     <q-card-section class="book-card q-pa-lg row items-center justify-center">
       <q-img
         src="https://cdn.quasar.dev/img/parallax2.jpg"
@@ -8,12 +8,12 @@
       />
     </q-card-section>
     <q-card-section class="row">
-      <div class="col-12">The Recullent Corner</div>
+      <div class="col-12"> {{ book.title }}</div>
       <div class="col-12">
-        <small> by HG . Walles </small>
+        <small> by {{ book.author }} </small>
       </div>
       <div class="col-6 text-red-10 text-weight-bold">
-        Troca
+        {{ negotiationTypes[book.negotiation_type] }}
       </div>
       <div class="col-6 text-right">
         <q-icon name="favorite_outline" size="sm" />
@@ -23,15 +23,24 @@
 </template>
 
 <script>
-import { ref } from "vue";
-
 export default {
   props: {
     book: {
       required: true,
       type: Object,
-    },
+    }
   },
+  setup() {
+    const negotiationTypes = {
+      replacement: 'Troca',
+      loan: 'Empréstimo',
+      donation: 'Doação'
+    }
+
+    return {
+      negotiationTypes
+    }
+  }
 };
 </script>
 

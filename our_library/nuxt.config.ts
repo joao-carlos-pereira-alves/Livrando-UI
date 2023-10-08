@@ -7,5 +7,8 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: true,
-  }
+  },
+  components: [
+    './layouts/global-components'
+  ]
 });
