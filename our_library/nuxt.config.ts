@@ -10,5 +10,6 @@ export default defineNuxtConfig({
   },
   components: [
     './layouts/global-components'
-  ]
+  ],
+  ssr: false
 });

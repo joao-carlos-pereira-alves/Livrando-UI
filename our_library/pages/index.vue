@@ -1,33 +1,73 @@
 <template>
   <q-page class="items-start text-black">
     <div class="row">
-      <div class="col-12 text-center q-mb-0">
-        <h3 class="text-red-10 text-weight-bold">Livros</h3>
+      <div
+        class="col-12 text-center q-mb-0 row justify-center"
+        :class="{ 'q-my-lg q-pa-xl': loadingDOM }"
+      >
+        <q-skeleton type="rect" width="200px" v-if="loadingDOM" />
+        <h3 class="text-red-10 text-weight-bold" v-else>Livros</h3>
       </div>
-      <q-card class="col-12 row align-center shadow-0">
-        <q-card-section class="col-12 row align-center items-center justify-between">
-          <div class="col-12 col-sm-12 col-md-2 col-lg-1 row align-center justify-center">
-            <q-btn class="text-white full-width" style="background-color: brown" @click="openBookForm = true">
+      <q-card class="col-12 row align-center shadow-0 q-mb-md">
+        <FilterSkeleton class="col-12" v-if="loadingDOM" />
+        <q-card-section
+          class="col-12 row align-center items-center justify-between"
+          v-else
+        >
+          <div
+            class="col-12 col-sm-12 col-md-2 row align-center justify-center"
+            :class="{ 'q-pr-md': $q.screen.md || $q.screen.lg || $q.screen.xl }"
+          >
+            <q-btn
+              class="text-white full-width"
+              style="background-color: brown"
+              @click="openBookForm = true"
+            >
               Novos Livros
             </q-btn>
           </div>
-          <div class="col-12 col-sm-12 col-md-2 col-lg-1" :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }">
+          <div
+            class="col-12 col-sm-12 col-md-2"
+            :class="{
+              'q-mt-md': $q.screen.sm || $q.screen.xs,
+              'q-pr-md': $q.screen.md || $q.screen.lg || $q.screen.xl,
+            }"
+          >
             <q-btn class="text-red-10 full-width" outline> Categoria </q-btn>
           </div>
-          <div class="col-12 col-sm-9 col-md-6 col-lg-8 row justify-center"
-            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs }">
-            <q-input class="full-width" rounded standout v-model="text" placeholder="Pesquisar livro">
+          <div
+            class="col-12 col-sm-12 col-md-8 col-lg-8 row justify-center"
+            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs }"
+          >
+            <q-input
+              class="full-width"
+              rounded
+              standout
+              v-model="bookSearch"
+              placeholder="Pesquisar livro"
+            >
               <template v-slot:prepend>
-                <q-icon name="menu" color="gray" />
+                <q-icon name="search" color="gray" />
               </template>
             </q-input>
           </div>
-          <div class="col-12 col-sm-2 col-md-1" :class="{
-            'q-mr-md': !$q.screen.xs,
-            'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs,
-          }">
-            <q-btn class="text-red-10 full-width" outline> Ver Mais </q-btn>
+        </q-card-section>
+      </q-card>
+      <q-card class="col-12 row align-center shadow-0">
+        <q-card-section
+          class="col-12 row align-center items-center justify-between"
+        >
+          <q-skeleton type="rect" class="text col-2" v-if="loadingDOM" />
+          <div class="col-6 text-red-10 text-h4 text-weight-bold" v-else>
+            Novos
           </div>
+          <div class="col-6 row justify-end">
+            <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
+            <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
+          </div>
+        </q-card-section>
+        <q-card-section class="col-12">
+          <q-separator style="background-color: #f5f1e3" />
         </q-card-section>
         <q-card-section class="row full-width q-mt-lg">
           <div class="col-12 row" v-if="loadingBooks">
@@ -67,12 +107,17 @@
         <q-card-section
           class="col-12 row align-center items-center justify-between"
         >
-          <div class="col-6 text-red-10 text-h4 text-weight-bold">
+          <q-skeleton type="rect" class="text col-2" v-if="loadingDOM" />
+          <div class="col-6 text-red-10 text-h4 text-weight-bold" v-else>
             Mais Populares
           </div>
           <div class="col-6 row justify-end">
-            <q-btn class="text-red-10" outline> Ver Mais </q-btn>
+            <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
+            <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
           </div>
+        </q-card-section>
+        <q-card-section class="col-12">
+          <q-separator style="background-color: #f5f1e3" />
         </q-card-section>
         <q-card-section class="row full-width q-mt-lg">
           <div class="col-12 row" v-if="loadingPopularBooks">
@@ -116,9 +161,9 @@
 
 <script setup lang="ts">
 import BookComponent from "~/layouts/bookComponent.vue";
-import { ref, onBeforeMount, watch, computed } from "vue";
+import { ref, onBeforeMount, watch, computed, onMounted } from "vue";
 
-const category = ref();
+const loadingDOM = ref(true);
 const loadingBooks = ref(true);
 const loadingPopularBooks = ref(true);
 const bookPagination = ref({
@@ -127,7 +172,8 @@ const bookPagination = ref({
   total: 0,
   dashboard_view: true,
 });
-
+const bookSearch = ref("");
+const debounceTimer = ref(null);
 const bookPaginationPage = computed(() => bookPagination.value.page);
 const books = ref([]);
 const popularBooks = ref([]);
@@ -136,66 +182,70 @@ const popularBookPagination = ref({
   per_page: 4,
   total: 0,
   dashboard_view: true,
-  is_popular: true
+  is_popular: true,
 });
 
 const popularBookPaginationPage = computed(
   () => popularBookPagination.value.page
 );
 
-const getBooks = async (isPopular = false) => {
+const debouncedSearch = () => {
+  // Cancela o temporizador anterior, se houver
+  if (debounceTimer.value) {
+    clearTimeout(debounceTimer.value);
+  }
+
+  // Inicia um novo temporizador para executar a pesquisa após 500 ms (ajuste conforme necessário)
+  debounceTimer.value = setTimeout(() => {
+    getBooks(false, { title: bookSearch.value });
+    getBooks(true, { title: bookSearch.value });
+  }, 500);
+};
+
+const getBooks = async (isPopular = false, filter_params: Object = {}) => {
   try {
-    let params = {};
+    let params = {
+      ...filter_params,
+    };
 
     if (isPopular) {
-      params = {
-        ...popularBookPagination.value,
-      };
+      params = Object.assign(params, popularBookPagination.value);
     } else {
-      params = {
-        ...bookPagination.value,
-      };
+      params = Object.assign(params, bookPagination.value);
     }
 
-    const { data, pending, status, execute } = await useApi("/books", {
+    const { data } = await useApi("/books", {
       method: "get",
       params: params,
       lazy: true,
     });
 
-    watch(pending, () => {
+    if (data?.value) {
+      const { books: booksResponse, pagination_params } = data.value ?? {};
+      const { page, per_page, total } = pagination_params ?? {};
+      
       if (isPopular) {
-        loadingPopularBooks.value = pending.value;
+        popularBooks.value = booksResponse || [];
+        popularBookPagination.value = {
+          page: page,
+          per_page: per_page,
+          total: Math.ceil(total / per_page),
+          dashboard_view: true,
+          is_popular: true,
+        };
       } else {
-        loadingBooks.value = pending.value;
+        books.value = booksResponse || [];
+        bookPagination.value = {
+          page: page,
+          per_page: per_page,
+          total: Math.ceil(total / per_page),
+          dashboard_view: true,
+        };
       }
-    });
+    }
 
-    watch(execute, () => {
-      if (data?.value) {
-        const { books: booksResponse, pagination_params } = data?.value ?? {};
-        const { page, per_page, total } = pagination_params ?? {};
-
-        if (isPopular) {
-          popularBooks.value = booksResponse || [];
-          popularBookPagination.value = {
-            page: page,
-            per_page: per_page,
-            total: Math.ceil(total / per_page),
-            dashboard_view: true,
-            is_popular: true,
-          };
-        } else {
-          books.value = booksResponse || [];
-          bookPagination.value = {
-            page: page,
-            per_page: per_page,
-            total: Math.ceil(total / per_page),
-            dashboard_view: true,
-          };
-        }
-      }
-    });
+    loadingBooks.value = false;
+    loadingPopularBooks.value = false;
   } catch (error) {
     console.error(error);
   }
@@ -210,19 +260,27 @@ const updatePage = (page: Number, isPopular = false) => {
 };
 
 onBeforeMount(async () => {
-  getBooks();
-  getBooks(true);
+  await getBooks();
+  await getBooks(true);
+});
+
+onMounted(() => {
+  loadingDOM.value = false;
 });
 
 watch(bookPaginationPage, (beforePage, afterPage) => {
-  if (afterPage == bookPaginationPage) return;
+  if (afterPage == bookPaginationPage.value) return;
 
   getBooks();
 });
 
 watch(popularBookPaginationPage, (beforePage, afterPage) => {
-  if (afterPage == popularBookPaginationPage) return;
+  if (afterPage == popularBookPaginationPage.value) return;
 
   getBooks(true);
+});
+
+watch(bookSearch, () => {
+  debouncedSearch();
 });
 </script>
