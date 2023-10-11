@@ -38,7 +38,7 @@ export default {
       type: Object,
     },
   },
-  setup(props) {
+  setup(props, context) {
     const { book } = toRefs(props);
     const { _auth } = authentication();
     const liked = ref(false);
@@ -47,6 +47,10 @@ export default {
       replacement: "Troca",
       loan: "Empréstimo",
       donation: "Doação",
+    };
+
+    const emitDeslikEvent = (book_id) => {
+      context.emit('deslike', book_id);
     };
 
     const like = async () => {
@@ -70,15 +74,17 @@ export default {
 
     const deslike = async () => {
       try {
+        const book_id = book.value.id;
         await useApi(`/favorite_books/deslike`, {
           method: "post",
           params: {
-            book_id: book.value.id
+            book_id: book_id
           },
           lazy: true,
         });
 
         liked.value = false;
+        emitDeslikEvent(book_id)
       } catch (error) {
         console.error(error);
       }
