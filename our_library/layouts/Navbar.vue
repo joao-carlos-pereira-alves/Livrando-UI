@@ -2,27 +2,42 @@
   <q-header elevated class="bg-grey-1 q-mb-none">
     <div class="row justify-between q-px-md q-pt-md items-center">
       <div class="col q-pb-sm">
-        <span class="toolbar-logo-title text-red-10">OUR LIBRARY</span>
+        <q-skeleton type="QToolbar" style="height: 25px; max-width: 250px;" v-if="loadingDOM" />
+        <span class="toolbar-logo-title text-red-10" v-else>OUR LIBRARY</span>
       </div>
       <div class="col">
         <q-tabs no-caps class="text-black">
-          <q-route-tab to="/" label="Home" />
-          <q-route-tab to="/" label="Meus Livros" />
-          <q-route-tab to="/" label="Favoritos" />
+          <q-skeleton type="QBadge" v-if="loadingDOM" />
+          <q-route-tab to="/" label="Home" v-else/>
+          <q-skeleton type="QBadge" v-if="loadingDOM" class="q-ml-md" />
+          <q-route-tab to="/favorites" label="Favoritos" v-else />
         </q-tabs>
       </div>
-      <div class="col row justify-end q-pb-sm">
-        <q-avatar class="toolbar-actions" size="38px">
+      <div class="col row justify-end q-pb-sm items-center">
+        <q-skeleton type="QAvatar" v-if="loadingDOM" />
+        <q-avatar class="toolbar-actions" size="38px" v-else>
           <img
             src="https://robohash.org/3b428839bab087e7469213e7887e9e2d?set=set4&bgset=&size=200x200"
           />
         </q-avatar>
-        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" />
-        <q-btn class="toolbar-actions text-red-10" outline label="Sair" />
+        <q-skeleton class="col-2 q-ml-md" type="text" style="height: 25px; max-width: 250px;" v-if="loadingDOM" />
+        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" v-else/>
+        <q-skeleton class="q-ml-md" type="QBtn" v-if="loadingDOM" />
+        <q-btn class="toolbar-actions text-red-10" outline label="Sair" v-else />
       </div>
     </div>
   </q-header>
 </template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+
+const loadingDOM = ref(true);
+
+onMounted(() => {
+  loadingDOM.value = false;
+});
+</script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Petrona:wght@500&family=Poppins:ital,wght@0,400;0,500;1,700&family=Roboto+Mono:wght@700&family=Roboto:wght@400;500;700&display=swap");

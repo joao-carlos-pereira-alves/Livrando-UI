@@ -6,7 +6,7 @@
         :class="{ 'q-my-lg q-pa-xl': loadingDOM }"
       >
         <q-skeleton type="rect" width="200px" v-if="loadingDOM" />
-        <h3 class="text-red-10 text-weight-bold" v-else>Livros</h3>
+        <h3 class="text-red-10 text-weight-bold" v-else>Favoritos</h3>
       </div>
       <q-card class="col-12 row align-center shadow-0 q-mb-md">
         <FilterSkeleton class="col-12" v-if="loadingDOM" />
@@ -23,7 +23,7 @@
               style="background-color: brown"
               @click="openBookForm = true"
             >
-              Meus Livros
+              Novos Livros
             </q-btn>
           </div>
           <div
@@ -108,7 +108,7 @@
               v-for="(book, index) in books"
               :key="book.id"
             >
-              <BookComponent :book="book" />
+              <BookComponent :book="book" @deslike="removeBookFromList" />
             </div>
           </div>
         </q-card-section>
@@ -124,58 +124,6 @@
           @click="updatePage(currentPage)"
         ></q-icon>
       </div>
-      <q-card class="col-12 row align-center shadow-0 q-mb-lg">
-        <q-card-section
-          class="col-12 row align-center items-center justify-between"
-        >
-          <q-skeleton type="rect" class="text col-2" v-if="loadingDOM" />
-          <div class="col-6 text-red-10 text-h4 text-weight-bold" v-else>
-            Mais Populares
-          </div>
-          <div class="col-6 row justify-end">
-            <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
-            <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
-          </div>
-        </q-card-section>
-        <q-card-section class="col-12">
-          <q-separator style="background-color: #f5f1e3" />
-        </q-card-section>
-        <q-card-section class="row full-width q-mt-lg">
-          <div class="col-12 row" v-if="loadingPopularBooks">
-            <BookSkeleton
-              v-for="i in 4"
-              :key="i"
-              class="col-12 col-sm-12 col-md-4 col-lg-3"
-            />
-          </div>
-          <div class="col-12 row" v-else>
-            <div
-              class="col-12 col-sm-12 col-md-4 col-lg-3"
-              :class="{
-                'q-pl-md': Number(index) >= 1,
-                'q-py-md': !$q.screen.mobile,
-              }"
-              v-for="(book, index) in books"
-              :key="book.id"
-            >
-              <BookComponent :book="book" />
-            </div>
-          </div>
-        </q-card-section>
-      </q-card>
-      <div class="col-12 q-py-md text-center">
-        <q-icon
-          v-for="currentPopularPage in popularBookPagination.total"
-          :key="currentPopularPage"
-          name="circle"
-          class="link q-ma-xs"
-          :color="
-            currentPopularPage == popularBookPagination.page ? 'brown' : 'grey'
-          "
-          size="18px"
-          @click="updatePage(currentPopularPage, true)"
-        ></q-icon>
-      </div>
     </div>
   </q-page>
 </template>
@@ -186,30 +134,16 @@ import { ref, onBeforeMount, watch, computed, onMounted } from "vue";
 
 const loadingDOM = ref(true);
 const loadingBooks = ref(true);
-const loadingPopularBooks = ref(true);
 const bookPagination = ref({
   page: 1,
-  per_page: 4,
+  per_page: 12,
   total: 0,
-  dashboard_view: true,
 });
 const bookSearch = ref("");
 const debounceTimer = ref(null);
 const bookPaginationPage = computed(() => bookPagination.value.page);
 const books = ref([]);
-const popularBooks = ref([]);
-const popularBookPagination = ref({
-  page: 1,
-  per_page: 4,
-  total: 0,
-  dashboard_view: true,
-  is_popular: true,
-});
 const categories = ref([]);
-
-const popularBookPaginationPage = computed(
-  () => popularBookPagination.value.page
-);
 
 const debouncedSearch = () => {
   // Cancela o temporizador anterior, se houver
@@ -219,27 +153,28 @@ const debouncedSearch = () => {
 
   // Inicia um novo temporizador para executar a pesquisa após 500 ms (ajuste conforme necessário)
   debounceTimer.value = setTimeout(() => {
-    getBooks(false, { title: bookSearch.value });
-    getBooks(true, { title: bookSearch.value });
+    getBooks({ title: bookSearch.value });
   }, 500);
 };
 
-const getBooks = async (isPopular = false, filter_params: Object = {}) => {
+const removeBookFromList = (book_id: Number | string) => {
+  if (book_id) {
+    books.value = books.value.filter((book) => book.id != book_id);
+  }
+};
+
+const getBooks = async (filter_params: Object = {}) => {
   try {
     let params = {
       ...filter_params,
+      ...bookPagination.value,
+      favorite: true,
       category_ids: [
         categories.value
           .filter((category) => category.selected)
-          .map((category) => category.id),
-      ],
+          .map((category) => category.id)
+      ]
     };
-
-    if (isPopular) {
-      params = Object.assign(params, popularBookPagination.value);
-    } else {
-      params = Object.assign(params, bookPagination.value);
-    }
 
     const { data, execute, abort, canAbort } = await useApi("/books", {
       method: "get",
@@ -250,35 +185,23 @@ const getBooks = async (isPopular = false, filter_params: Object = {}) => {
     await execute();
 
     setTimeout(() => {
-      if (canAbort.value) abort();
+      if (canAbort?.value) abort();
     }, 400);
 
     if (data?.value) {
       const { books: booksResponse, pagination_params } = data.value ?? {};
       const { page, per_page, total } = pagination_params ?? {};
 
-      if (isPopular) {
-        popularBooks.value = booksResponse || [];
-        popularBookPagination.value = {
-          page: page,
-          per_page: per_page,
-          total: Math.ceil(total / per_page),
-          dashboard_view: true,
-          is_popular: true,
-        };
-      } else {
-        books.value = booksResponse || [];
-        bookPagination.value = {
-          page: page,
-          per_page: per_page,
-          total: Math.ceil(total / per_page),
-          dashboard_view: true,
-        };
-      }
+      books.value = booksResponse || [];
+      bookPagination.value = {
+        page: page,
+        per_page: per_page,
+        total: Math.ceil(total / per_page),
+        dashboard_view: true,
+      };
     }
 
     loadingBooks.value = false;
-    loadingPopularBooks.value = false;
   } catch (error) {
     console.error(error);
   }
@@ -306,16 +229,11 @@ const getCategories = async () => {
 };
 
 const updatePage = (page: Number, isPopular = false) => {
-  if (isPopular) {
-    popularBookPagination.value.page = page;
-  } else {
-    bookPagination.value.page = page;
-  }
+  bookPagination.value.page = page;
 };
 
 onBeforeMount(() => {
   getBooks();
-  getBooks(true);
   getCategories();
 });
 
@@ -327,12 +245,6 @@ watch(bookPaginationPage, (beforePage, afterPage) => {
   if (afterPage == bookPaginationPage.value) return;
 
   getBooks();
-});
-
-watch(popularBookPaginationPage, (beforePage, afterPage) => {
-  if (afterPage == popularBookPaginationPage.value) return;
-
-  getBooks(true);
 });
 
 watch(bookSearch, () => {
