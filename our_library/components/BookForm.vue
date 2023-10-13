@@ -46,6 +46,7 @@
                 v-model="book.category"
                 :options="categories"
                 option-label="name"
+                placeholder="Selecione uma categoria"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -82,7 +83,8 @@
                 outlined
                 :rules="[rules.requiredSelect]"
                 v-model="book.language"
-                :options="lenguages"
+                :options="languages"
+                placeholder="Selecione uma língua"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -104,6 +106,7 @@
                 v-model="book.negotiation_type"
                 :options="negotiationTypes"
                 option-label="title"
+                placeholder="Selecione um tipo de negociação"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -124,9 +127,10 @@
             <q-btn
               label="Cancelar"
               type="reset"
-              outlined
+              outline
               color="grey-7"
               class="q-ml-sm q-mr-sm"
+              @click="close(false)"
             />
             <q-btn label="Publicar" color="red-10" @click="saveBook" />
           </div>
@@ -140,18 +144,16 @@
 import { ref, computed } from "vue";
 
 const props = defineProps({
-  openBookForm: {
-    type: Boolean,
-    default: true,
-  },
+  openBookForm: { type: Boolean, default: false },
 });
 
 onBeforeMount(() => {
   getCategories();
 });
 
-interface Categories {
+interface Category {
   id: number;
+  name: string;
 }
 
 interface Book {
@@ -165,11 +167,34 @@ interface Book {
   language: string;
   amount: number;
   negotiation_type: string;
-  categories: Array<Categories>;
+  category?: Category;
   file: string;
+  responsible: number;
+  added_by: number;
+  category_id: number;
 }
 
-const lenguages = ref([
+interface Negotiation {
+  id: number;
+  title: string;
+}
+
+const open = ref(props.openBookForm);
+
+const isOpen = computed({
+  get() {
+    return props.openBookForm;
+  },
+  set(value) {
+    open.value = value;
+  },
+});
+
+const close = (value: boolean) => {
+  isOpen.value = value;
+};
+
+const languages = ref([
   "portuguese",
   "english",
   "spanish",
@@ -194,13 +219,9 @@ const lenguages = ref([
   "swahili",
 ]);
 
-const open = computed(() => {
-  return props.openBookForm;
-});
-
-let categories = ref([]);
-
-let book = ref({
+let categories = ref<Array<Category>>();
+let book = ref<Book>({
+  id: 0,
   title: "",
   isbn: "",
   description: "",
@@ -208,17 +229,16 @@ let book = ref({
   publishing_company: "",
   publication_year: "",
   language: "",
-  amount: 1,
+  amount: 0,
   negotiation_type: "",
-  category: {},
   file: "",
-  responsible: null,
-  added_by: null,
+  responsible: 0,
+  added_by: 0,
+  category_id: 0,
 });
-
 const bookForm = ref(null);
 
-const negotiationTypes = ref([
+const negotiationTypes = ref<Array<Negotiation>>([
   { title: "Doação", id: 1 },
   { title: "Troca", id: 2 },
   { title: "Empréstimo", id: 3 },
@@ -235,21 +255,23 @@ const getCategories = async () => {
   const { data: response } = await useApi("/categories", {
     method: "get",
   });
-  console.log("response aaa", response);
+
   categories = response;
 };
 
 const saveBook = async () => {
   if (!bookForm) return;
 
-  bookForm.value.validate();
+  bookForm.value?.validate();
 
-  const currentUser = JSON.parse(localStorage.getItem("_auth"));
-  console.log("currentUser.id", currentUser.id);
+  const currentUser: string | null = JSON.parse(localStorage.getItem("_auth"));
 
-  book.value.responsible = currentUser.id;
-  book.value.added_by = currentUser.id;
-  book.value.category_id = book.value.category.id;
+  if (book && book.value) {
+    book.value.responsible = currentUser?.id;
+    book.value.responsible = currentUser?.id;
+    book.value.added_by = currentUser?.id;
+    book.value.category_id = book.value.category.id;
+  }
 
   try {
     const response = await useApi("/books", {
@@ -258,24 +280,31 @@ const saveBook = async () => {
         book: book.value,
       },
     });
-    console.log("response post", response);
   } catch (error) {
-    console.log("error", error);
+    console.error("error", error);
   }
 };
 
 function onReset() {
-  // book = {
-  //   title: '',
-  //   isbn: '',
-  //   description: '',
-  //   author: '',
-  //   publisher: '',
-  //   publicationDate: '',
-  //   lenguage: '',
-  //   quantity: '',
-  //   negotiationTypes: [{}],
-  //   file: '',
-  // }
+  book.value = {
+    id: 0,
+    title: "",
+    isbn: "",
+    description: "",
+    author: "",
+    publishing_company: "",
+    publication_year: "",
+    language: "",
+    amount: 0,
+    negotiation_type: "",
+    category: {
+      id: 0,
+      name: "",
+    },
+    file: "",
+    responsible: 0,
+    added_by: 0,
+    category_id: 0,
+  };
 }
 </script>

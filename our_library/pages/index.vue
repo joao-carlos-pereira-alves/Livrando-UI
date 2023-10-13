@@ -4,7 +4,7 @@
       <div class="col-12 text-center q-mb-0">
         <h3 class="text-red-10 text-weight-bold">Livros</h3>
       </div>
-      <BookForm :openBookForm="openBookForm" />
+      <BookForm :openBookForm="openBookForm" :key="openBookForm" />
       <q-card class="col-12 row align-center shadow-0">
         <q-card-section
           class="col-12 row align-center items-center justify-between"
@@ -15,7 +15,6 @@
             <q-btn
               class="text-white full-width"
               style="background-color: brown"
-              @click="openBookForm = true"
             >
               Novos Livros
             </q-btn>
@@ -52,7 +51,7 @@
             <q-btn
               class="text-red-10 full-width"
               outline
-              @click="openBookForm = true"
+              @click="setOpenBookForm"
             >
               Publicar
             </q-btn>
@@ -239,6 +238,11 @@ const updatePage = (page: Number, isPopular = false) => {
   } else {
     bookPagination.value.page = page;
   }
+};
+
+const setOpenBookForm = () => {
+  console.log("bora fi", openBookForm);
+  openBookForm.value = true;
 };
 
 onBeforeMount(async () => {
