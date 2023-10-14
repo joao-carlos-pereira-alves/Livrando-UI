@@ -59,7 +59,7 @@
               label="E-mail"
               placeholder="Insira um e-mail"
               lazy-rules
-              v-model="user.name"
+              v-model="user.email"
               dense
               :rules="[rules.required]"
               :disable="!editable"
@@ -80,7 +80,7 @@
               label="Senha"
               placeholder="**********"
               lazy-rules
-              v-model="user.name"
+              v-model="user.password"
               dense
               :disable="!editable"
               :rules="[rules.required]"
@@ -98,7 +98,7 @@
               v-else
               type="text"
               outlined
-              mask="(##) # ####-####"
+              :mask="editable ? '(##) # ####-####' : ''"
               label="Celular"
               placeholder="Insira um Celular"
               lazy-rules

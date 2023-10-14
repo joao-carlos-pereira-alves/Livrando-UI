@@ -1,5 +1,5 @@
 <template>
-  <q-page class="items-start text-black">
+  <q-page class="text-black">
     <div class="row">
       <div
         class="col-12 text-center row justify-center"
@@ -8,15 +8,23 @@
         <q-skeleton type="rect" width="200px" v-if="loadingDOM" />
         <h3 class="text-red-10 text-weight-bold" v-else>Perfil</h3>
       </div>
-      <div class="col-12 q-mb-md">
+      <div class="col-12 q-mb-lg">
         <ProfileHeaderComponent />
+      </div>
+      <div class="col-12 q-mb-md">
+        <ProfileReviewComponent  />
+      </div>
+      <div class="col-12 col-sm-12 col-md-4">
+        <ProfileNegociationComponent />
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import ProfileReviewComponent from "../layouts/profileReviewComponent.vue";
 import ProfileHeaderComponent from "../layouts/profileHeaderComponent.vue";
+import ProfileNegociationComponent from "../layouts/profileNegociationComponent.vue";
 import { ref, onMounted } from "vue";
 
 const loadingDOM = ref(true);

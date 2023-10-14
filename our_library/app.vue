@@ -37,4 +37,8 @@ onMounted(() => {
   top: 1px;
   filter: brightness(85%);
 }
+
+.green-background { 
+  background-color: #badcc8;
+}
 </style>
