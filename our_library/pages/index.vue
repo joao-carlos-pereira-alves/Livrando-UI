@@ -8,6 +8,7 @@
         <q-skeleton type="rect" width="200px" v-if="loadingDOM" />
         <h3 class="text-red-10 text-weight-bold" v-else>Livros</h3>
       </div>
+      <BookForm :openBookForm="openBookForm" :key="openBookForm" />
       <q-card class="col-12 row align-center shadow-0 q-mb-md">
         <FilterSkeleton class="col-12" v-if="loadingDOM" />
         <q-card-section
@@ -21,6 +22,18 @@
             <q-btn
               class="text-white full-width"
               style="background-color: brown"
+            >
+              Novos Livros
+            </q-btn>
+          </div>
+          <div
+            class="col-12 col-sm-12 col-md-2 col-lg-1"
+            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }"
+          >
+            <q-btn class="text-red-10 full-width" outline> Categoria </q-btn>
+          </div>
+          <div
+            class="col-12 col-sm-9 col-md-6 col-lg-8 row justify-center"
               @click="openBookForm = true"
             >
               Meus Livros
@@ -72,6 +85,20 @@
               </template>
             </q-input>
           </div>
+          <div
+            class="col-12 col-sm-2 col-md-1"
+            :class="{
+              'q-mr-md': !$q.screen.xs,
+              'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs,
+            }"
+          >
+            <q-btn
+              class="text-red-10 full-width"
+              outline
+              @click="setOpenBookForm"
+            >
+              Publicar
+            </q-btn>
         </q-card-section>
       </q-card>
       <q-card class="col-12 row align-center shadow-0">
@@ -85,6 +112,7 @@
           <div class="col-6 row justify-end">
             <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
             <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
+
           </div>
         </q-card-section>
         <q-card-section class="col-12">
@@ -182,6 +210,7 @@
 
 <script setup lang="ts">
 import BookComponent from "~/layouts/bookComponent.vue";
+import BookForm from "../components/BookForm.vue";
 import { ref, onBeforeMount, watch, computed, onMounted } from "vue";
 
 const loadingDOM = ref(true);
@@ -206,6 +235,8 @@ const popularBookPagination = ref({
   is_popular: true,
 });
 const categories = ref([]);
+
+let openBookForm = ref(false);
 
 const popularBookPaginationPage = computed(
   () => popularBookPagination.value.page
@@ -311,6 +342,11 @@ const updatePage = (page: Number, isPopular = false) => {
   } else {
     bookPagination.value.page = page;
   }
+};
+
+const setOpenBookForm = () => {
+  console.log("bora fi", openBookForm);
+  openBookForm.value = true;
 };
 
 onBeforeMount(() => {
