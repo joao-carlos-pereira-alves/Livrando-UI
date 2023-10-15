@@ -63,24 +63,11 @@ export const authentication = defineStore("authentication", {
         return error;
       }
     },
-    // async logout() {
-    //   this._auth = {};
-    //   localStorage.removeItem("_auth");
-    //   localStorage.removeItem("lastInvitation");
-    //   localStorage.removeItem("invitations");
-
-    //   router.push({ name: "Login" });
-    // },
-    // async resetPassword(params: Object) {
-    //   try {
-    //     await axios.put("/reset_password", {
-    //       user: params
-    //     })
-
-    //     router.push({ name: 'Login' })
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // }
+    async logout() {
+      this._auth = {};
+      const router = useRouter();
+      localStorage.removeItem("_auth");
+      router.push({ name: "Login" });
+    }
   },
 });
