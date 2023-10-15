@@ -84,7 +84,10 @@
           </div>
           <div class="col-6 row justify-end">
             <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
-            <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
+            <q-btn v-else class="text-red-10" outline @click="setOpenBookForm">
+              Publicar
+            </q-btn>
+            <BookForm :openBookForm="openBookForm" :key="openBookForm" />
           </div>
         </q-card-section>
         <q-card-section class="col-12">
@@ -182,6 +185,7 @@
 
 <script setup lang="ts">
 import BookComponent from "~/layouts/bookComponent.vue";
+import BookForm from "../components/BookForm.vue";
 import { ref, onBeforeMount, watch, computed, onMounted } from "vue";
 
 const loadingDOM = ref(true);
@@ -206,6 +210,13 @@ const popularBookPagination = ref({
   is_popular: true,
 });
 const categories = ref([]);
+
+const setOpenBookForm = () => {
+  console.log("bora fi", openBookForm);
+  openBookForm.value = true;
+};
+
+let openBookForm = ref(false);
 
 const popularBookPaginationPage = computed(
   () => popularBookPagination.value.page

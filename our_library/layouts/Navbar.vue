@@ -21,18 +21,24 @@
           <img src="https://robohash.org/3b428839bab087e7469213e7887e9e2d?set=set4&bgset=&size=200x200" />
         </q-avatar>
         <q-skeleton class="col-2 q-ml-md" type="text" style="height: 25px; max-width: 250px;" v-if="loadingDOM" />
-        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" v-else />
+        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" v-else
+          @click="$router.push({ path: '/profile', query: { 'uuid': _auth.uuid } })" />
         <q-skeleton class="q-ml-md" type="QBtn" v-if="loadingDOM" />
-        <q-btn class="toolbar-actions text-red-10" outline label="Sair" v-else />
+        <q-btn class="toolbar-actions text-red-10" outline label="Sair" v-else @click="logout" />
       </div>
     </div>
   </q-header>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { authentication } from '../store/modules/authentication';
+import { ref, onMounted, computed } from 'vue';
 
 const loadingDOM = ref(true);
+const useAuthentication = authentication();
+
+const { logout } = useAuthentication;
+const _auth = computed(() => useAuthentication._auth)
 
 onMounted(() => {
   loadingDOM.value = false;
