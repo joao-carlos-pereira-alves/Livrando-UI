@@ -17,6 +17,7 @@
                 :rules="[rules.required]"
                 v-model="book.title"
                 placeholder="Insira seu nome"
+                color="secondary"
               />
             </div>
             <div class="q-mb-md col-5">
@@ -26,6 +27,7 @@
                 v-model="book.isbn"
                 placeholder="Insira o código ISBN"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-6">
@@ -36,17 +38,21 @@
                 v-model="book.description"
                 placeholder="Insira uma descrição"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-5">
               <label class="form-label">Categoria</label>
               <q-select
                 outlined
+                counter
                 :rules="[rules.requiredSelect]"
-                v-model="book.category"
+                v-model="book.book_categories_attributes"
                 :options="categories"
+                multiple
                 option-label="name"
-                placeholder="Selecione uma categoria"
+                label="Selecione uma categoria"
+                color="secondary"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -56,6 +62,7 @@
                 v-model="book.author"
                 placeholder="Insira o autor"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-5">
@@ -63,8 +70,9 @@
               <q-input
                 outlined
                 v-model="book.publishing_company"
-                placeholder="Insira o autor"
+                label="Insira o autor"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-6">
@@ -73,8 +81,9 @@
                 type="number"
                 outlined
                 v-model="book.publication_year"
-                placeholder="Insira o autor"
+                placeholder="2023"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-5">
@@ -84,7 +93,8 @@
                 :rules="[rules.requiredSelect]"
                 v-model="book.language"
                 :options="languages"
-                placeholder="Selecione uma língua"
+                label="Selecione uma língua"
+                color="secondary"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -96,6 +106,7 @@
                 v-model="book.amount"
                 placeholder="Insira a quantidade"
                 lazy-rules
+                color="secondary"
               ></q-input>
             </div>
             <div class="q-mb-md col-5">
@@ -106,7 +117,8 @@
                 v-model="book.negotiation_type"
                 :options="negotiationTypes"
                 option-label="title"
-                placeholder="Selecione um tipo de negociação"
+                label="Selecione uma negociação"
+                color="secondary"
               />
             </div>
             <div class="q-mb-md col-6">
@@ -116,9 +128,10 @@
                 v-model="book.file"
                 placeholder="Insira a capa do livro"
                 lazy-rules
+                color="secondary"
               >
                 <template v-slot:prepend>
-                  <q-icon name="upload" color="black" />
+                  <q-icon name="upload" color="secondary" />
                 </template>
               </q-input>
             </div>
@@ -142,6 +155,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+const { $swal } = useNuxtApp();
 
 const props = defineProps({
   openBookForm: { type: Boolean, default: false },
@@ -152,35 +166,35 @@ onBeforeMount(() => {
 });
 
 interface Category {
-  id: number;
-  name: string;
+  id?: number;
+  name?: string;
+  category_id?: number;
 }
 
 interface Book {
-  id: number;
+  id?: number;
   title: string;
   isbn: string;
   description: string;
   author: string;
   publishing_company: string;
   publication_year: string;
-  language: string;
+  language: string | null;
   amount: number;
   negotiation_type: string;
-  category?: Category;
-  file: string;
-  responsible: number;
-  added_by: number;
-  category_id: number;
+  file?: string;
+  responsible_id: number;
+  added_by_id: number;
+  book_categories_attributes?: Array<Category>;
 }
 
 interface Negotiation {
   id: number;
   title: string;
+  model_name: string;
 }
 
 const open = ref(props.openBookForm);
-
 const isOpen = computed({
   get() {
     return props.openBookForm;
@@ -189,10 +203,25 @@ const isOpen = computed({
     open.value = value;
   },
 });
-
 const close = (value: boolean) => {
   isOpen.value = value;
 };
+
+let categories = ref<Array<Category>>();
+let book = ref<Book>({
+  title: "",
+  isbn: "",
+  description: "",
+  author: "",
+  publishing_company: "",
+  publication_year: "",
+  language: null,
+  amount: 0,
+  negotiation_type: "",
+  responsible_id: 0,
+  added_by_id: 0,
+});
+const bookForm = ref(null);
 
 const languages = ref([
   "portuguese",
@@ -218,30 +247,10 @@ const languages = ref([
   "malay",
   "swahili",
 ]);
-
-let categories = ref<Array<Category>>();
-let book = ref<Book>({
-  id: 0,
-  title: "",
-  isbn: "",
-  description: "",
-  author: "",
-  publishing_company: "",
-  publication_year: "",
-  language: "",
-  amount: 0,
-  negotiation_type: "",
-  file: "",
-  responsible: 0,
-  added_by: 0,
-  category_id: 0,
-});
-const bookForm = ref(null);
-
 const negotiationTypes = ref<Array<Negotiation>>([
-  { title: "Doação", id: 1 },
-  { title: "Troca", id: 2 },
-  { title: "Empréstimo", id: 3 },
+  { title: "Doação", id: 1, model_name: "donation" },
+  { title: "Troca", id: 2, model_name: "replacement" },
+  { title: "Empréstimo", id: 3, model_name: "loan" },
 ]);
 
 const rules = {
@@ -267,10 +276,16 @@ const saveBook = async () => {
   const currentUser: string | null = JSON.parse(localStorage.getItem("_auth"));
 
   if (book && book.value) {
-    book.value.responsible = currentUser?.id;
-    book.value.responsible = currentUser?.id;
-    book.value.added_by = currentUser?.id;
-    book.value.category_id = book.value.category.id;
+    book.value.responsible_id = currentUser?.id;
+    book.value.added_by_id = currentUser?.id;
+    book.value.amount = Number(book.value.amount);
+    book.value.negotiation_type = book.value.negotiation_type.model_name;
+    book.value.book_categories_attributes =
+      book.value.book_categories_attributes?.map((category) => {
+        return {
+          category_id: category.id,
+        };
+      });
   }
 
   try {
@@ -280,31 +295,26 @@ const saveBook = async () => {
         book: book.value,
       },
     });
+
+    close(false);
+    console.log($swal);
+
+    $swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Ação realizada com sucesso!",
+      showConfirmButton: false,
+      timer: 1500,
+    });
   } catch (error) {
     console.error("error", error);
+    $swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Ação não realizada",
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
 };
-
-function onReset() {
-  book.value = {
-    id: 0,
-    title: "",
-    isbn: "",
-    description: "",
-    author: "",
-    publishing_company: "",
-    publication_year: "",
-    language: "",
-    amount: 0,
-    negotiation_type: "",
-    category: {
-      id: 0,
-      name: "",
-    },
-    file: "",
-    responsible: 0,
-    added_by: 0,
-    category_id: 0,
-  };
-}
 </script>

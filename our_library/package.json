@@ -18,7 +18,8 @@
     "@quasar/extras": "^1.16.6",
     "jwt-decode": "^3.1.2",
     "pinia": "^2.1.6",
-    "quasar": "^2.12.6"
+    "quasar": "^2.12.6",
+    "sweetalert2": "^11.7.32"
   },
   "overrides": {
     "vue": "latest"
