@@ -13,6 +13,7 @@ export const useApi: typeof useFetch = (request, opts?) => {
 
   return useFetch(request, {
     onRequest({ request, options }) {
+      const token: String = _auth?.token;
       options.headers = options.headers || {};
 
       if (token) {
