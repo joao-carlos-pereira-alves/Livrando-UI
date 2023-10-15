@@ -1,5 +1,5 @@
 <template>
-  <q-card class="green-background shadow-0 q-pa-lg">
+  <q-card class="green-background shadow-0 q-pa-lg card">
     <q-card-section class="text-black text-weight-bold q-pa-none q-mb-sm"> Negociações </q-card-section>
     <q-card-section class="row bg-white" style="border-radius: 5px;">
       <div class="col-12 col-sm-12 col-md-4 col-lg-3">
@@ -30,5 +30,9 @@
 <style>
 .image {
   border-radius: 10px;
+}
+
+.card {
+  min-height: 450px;
 }
 </style>

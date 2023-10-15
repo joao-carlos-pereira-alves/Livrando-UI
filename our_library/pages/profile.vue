@@ -17,6 +17,9 @@
       <div class="col-12 col-sm-12 col-md-4">
         <ProfileNegociationComponent />
       </div>
+      <div class="col-12 col-sm-12 col-md-8 q-mb-md" :class="{'q-pl-sm': !$q.screen.xs && !$q.screen.sm, 'q-mt-sm': $q.screen.xs || $q.screen.sm }">
+        <ChatComponent />
+      </div>
     </div>
   </q-page>
 </template>
@@ -25,6 +28,7 @@
 import ProfileReviewComponent from "../layouts/profileReviewComponent.vue";
 import ProfileHeaderComponent from "../layouts/profileHeaderComponent.vue";
 import ProfileNegociationComponent from "../layouts/profileNegociationComponent.vue";
+import ChatComponent from "../layouts/chatComponent.vue";
 import { ref, onMounted } from "vue";
 
 const loadingDOM = ref(true);
