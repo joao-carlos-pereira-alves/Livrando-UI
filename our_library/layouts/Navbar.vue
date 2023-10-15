@@ -8,20 +8,20 @@
       <div class="col">
         <q-tabs no-caps class="text-black">
           <q-skeleton type="QBadge" v-if="loadingDOM" />
-          <q-route-tab to="/" label="Home" v-else/>
+          <q-route-tab to="/" label="Home" v-else />
           <q-skeleton type="QBadge" v-if="loadingDOM" class="q-ml-md" />
           <q-route-tab to="/favorites" label="Favoritos" v-else />
+          <q-skeleton type="QBadge" v-if="loadingDOM" />
+          <q-route-tab to="/register" label="Registro" v-else />
         </q-tabs>
       </div>
       <div class="col row justify-end q-pb-sm items-center">
         <q-skeleton type="QAvatar" v-if="loadingDOM" />
         <q-avatar class="toolbar-actions" size="38px" v-else>
-          <img
-            src="https://robohash.org/3b428839bab087e7469213e7887e9e2d?set=set4&bgset=&size=200x200"
-          />
+          <img src="https://robohash.org/3b428839bab087e7469213e7887e9e2d?set=set4&bgset=&size=200x200" />
         </q-avatar>
         <q-skeleton class="col-2 q-ml-md" type="text" style="height: 25px; max-width: 250px;" v-if="loadingDOM" />
-        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" v-else/>
+        <q-btn class="toolbar-actions text-red-10" flat label="Perfil" v-else />
         <q-skeleton class="q-ml-md" type="QBtn" v-if="loadingDOM" />
         <q-btn class="toolbar-actions text-red-10" outline label="Sair" v-else />
       </div>

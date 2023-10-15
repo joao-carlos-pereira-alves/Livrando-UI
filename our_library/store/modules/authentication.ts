@@ -63,6 +63,49 @@ export const authentication = defineStore("authentication", {
         return error;
       }
     },
+    async register(user: Object) {
+      const router = useRouter();
+      try {
+        localStorage._auth = JSON.stringify({});
+        this._auth = {};
+
+        const response = await useApi("/register", {
+          method: "post",
+          body: {
+            user: user
+          },
+        }
+        )
+
+        this._auth = response.data;
+        localStorage._auth = JSON.stringify(this._auth);
+
+        // Notify.create({
+        //   color: "positive",
+        //   message: "Login realizado com sucesso",
+        //   icon: "thumb_up",
+        //   position: "bottom-right",
+        // });
+
+        // router.push({
+        //   name: "Dashboard",
+        //   query: { ...router?.currentRoute?.value?.query },
+        // });
+        router.push({
+          path: '/'
+        })
+        return true;
+      } catch (error) {
+        console.log(error);
+        // Notify.create({
+        //   color: "warning",
+        //   message: "E-mail ou senha inválidos",
+        //   icon: "thumb_down",
+        //   position: "bottom-right",
+        // });
+        return error;
+      }
+    },
     // async logout() {
     //   this._auth = {};
     //   localStorage.removeItem("_auth");
