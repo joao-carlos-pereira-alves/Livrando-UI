@@ -48,7 +48,8 @@ const _inlineRuntimeConfig = {
     }
   },
   "public": {
-    "baseURL": "http://localhost:3001/api/v1"
+    "baseURL": "http://localhost:3001/api/v1",
+    "baseWsUrl": "localhost:3001"
   }
 };
 const ENV_PREFIX = "NITRO_";
