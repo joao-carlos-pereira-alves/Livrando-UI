@@ -63,6 +63,31 @@ export const authentication = defineStore("authentication", {
         return error;
       }
     },
+    async register(user: Object) {
+      const router = useRouter();
+      try {
+        localStorage._auth = JSON.stringify({});
+        this._auth = {};
+
+        const response = await useApi("/users", {
+          method: "post",
+          body: {
+            user: user
+          },
+        }
+        )
+
+        this._auth = response.data;
+        localStorage._auth = JSON.stringify(this._auth);
+        router.push({
+          path: '/'
+        })
+        return true;
+      } catch (error) {
+        console.log(error);
+        return error;
+      }
+    },
     async logout() {
       this._auth = {};
       const router = useRouter();
