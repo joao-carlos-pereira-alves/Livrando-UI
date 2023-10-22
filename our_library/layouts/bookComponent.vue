@@ -12,7 +12,7 @@
       <div class="col-12">
         <small> by {{ book.author }} </small>
       </div>
-      <div class="col-6 text-red-10 text-weight-bold">
+      <div class="col-6 text-red-10 text-weight-bold" @click="$emit('trade', book)">
         {{ negotiationTypes[book.negotiation_type] }}
       </div>
       <div class="col-6 text-right">

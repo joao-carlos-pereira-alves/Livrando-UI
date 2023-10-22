@@ -1,5 +1,6 @@
 <template>
   <q-page class="items-start text-black">
+    <BookTradeComponent :open="openBookTrade" :book="currentBookTrade" v-if="openBookTrade" />
     <div class="row">
       <div
         class="col-12 text-center q-mb-0 row justify-center"
@@ -161,7 +162,7 @@
               v-for="(book, index) in books"
               :key="book.id"
             >
-              <BookComponent :book="book" />
+              <BookComponent :book="book" @trade="setCurrentTrade" />
             </div>
           </div>
         </q-card-section>
@@ -187,6 +188,7 @@
 import BookComponent from "~/layouts/bookComponent.vue";
 import BookForm from "../components/BookForm.vue";
 import { ref, onBeforeMount, watch, computed, onMounted } from "vue";
+import BookTradeComponent from "~/components/BookTradeComponent.vue";
 
 const loadingDOM = ref(true);
 const loadingBooks = ref(true);
@@ -210,6 +212,8 @@ const popularBookPagination = ref({
   is_popular: true,
 });
 const categories = ref([]);
+const openBookTrade = ref(false);
+const currentBookTrade = ref({});
 
 let openBookForm = ref(false);
 
@@ -318,6 +322,12 @@ const updatePage = (page: Number, isPopular = false) => {
     bookPagination.value.page = page;
   }
 };
+
+const setCurrentTrade = (book: Object) => {
+  currentBookTrade.value = { ...book }
+  console.log("o currentBookTrade: ", currentBookTrade)
+  openBookTrade.value = true;
+}
 
 onBeforeMount(() => {
   getBooks();

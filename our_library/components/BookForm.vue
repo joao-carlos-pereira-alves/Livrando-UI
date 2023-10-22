@@ -17,6 +17,7 @@
               v-model="book.title"
               placeholder="Insira seu nome"
               color="secondary"
+              lazy-rules
               dense
             />
           </div>
@@ -55,6 +56,7 @@
               option-label="name"
               label="Selecione uma categoria"
               color="secondary"
+              lazy-rules
               dense
             />
           </div>
@@ -104,6 +106,7 @@
               :options="languages"
               label="Selecione uma língua"
               color="secondary"
+              lazy-rules
               dense
             />
           </div>
@@ -129,6 +132,7 @@
               option-value="model_name"
               :options="negotiationTypes"
               option-label="title"
+              lazy-rules
               label="Selecione uma negociação"
               color="secondary"
               dense
@@ -168,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineEmits, onBeforeMount } from "vue";
+import { ref, computed, defineEmits, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
 
 const { $swal } = useNuxtApp();
@@ -267,8 +271,6 @@ const rules = {
 const createBook = async () => {
   if (!bookForm) return;
 
-  bookForm.value?.validate();
-
   bookForm.value?.validate().then(async (res: boolean) => {
     if (res && process.client) {
       if (book?.value) {
@@ -339,4 +341,24 @@ const createBook = async () => {
     }
   });
 };
+
+const resetForm = async () => {
+  book.value = {
+    title: "",
+    isbn: "",
+    description: "",
+    author: "",
+    publishing_company: "",
+    publication_year: "",
+    language: null,
+    amount: 0,
+    negotiation_type: "",
+    responsible_id: 0,
+    added_by_id: 0,
+    image: null,
+  };
+  if (bookForm?.value) await bookForm.value.resetValidation();
+};
+
+setTimeout(() => resetForm(), 7000);
 </script>
