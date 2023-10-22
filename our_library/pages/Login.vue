@@ -17,6 +17,7 @@
                 outlined
                 v-model="userAthentication.name"
                 placeholder="Insira seu nome"
+                :rules="[rules.required]"
               />
             </div>
             <div class="q-mb-md">
@@ -58,6 +59,7 @@
                 outlined
                 v-model="userAthentication.confirmPassword"
                 label="Insira sua senha"
+                :rules="[rules.required, rules.confirmPasswordMatch]"
               />
             </div>
             <div class="row">
@@ -86,7 +88,12 @@
                     ? "Você não tem uma conta?"
                     : "Você já tem uma conta ?"
                 }}
-                <a>{{ isLoginAction ? "Cadastrar" : "Login" }}</a>
+                <q-btn
+                  flat
+                  color="red-10"
+                  @click="isLoginAction = !isLoginAction"
+                  :label="isLoginAction == true ? 'Cadastrar' : 'Login'"
+                />
               </span>
             </div>
           </q-form>
@@ -102,14 +109,10 @@ import { authentication } from "../store/modules/authentication";
 import { onMounted } from "vue";
 
 const { login } = authentication();
+const { register } = authentication();
 const loadingDOM = ref(true);
 const loginForm = ref(null);
-const props = defineProps({
-  isLoginAction: {
-    type: Boolean,
-    default: true,
-  },
-});
+const isLoginAction = ref(true);
 const userAthentication = ref({
   name: "",
   email: "",
@@ -122,16 +125,31 @@ const emailPattern =
 const rules = {
   required: (val: string) => (val && val.length > 0) || "Campo obrigatório",
   email: (val: string) => emailPattern.test(val) || "E-mail inválido",
+  confirmPasswordMatch: (val: string) =>
+    val === userAthentication.value.password || "As senhas não coincidem",
 };
 
 const onSubmit = () => {
   if (!loginForm) return;
 
-  loginForm.value.validate().then(async (res: boolean) => {
-    if (res && process.client) {
-      login(userAthentication.value);
-    }
-  });
+  if (isLoginAction.value === false) {
+    loginForm.value.validate().then(async (res: boolean) => {
+      if (res && process.client) {
+        const user = {
+          name: userAthentication.value.name,
+          email: userAthentication.value.email,
+          password: userAthentication.value.password,
+        };
+        register(user);
+      }
+    });
+  } else {
+    loginForm.value.validate().then(async (res: boolean) => {
+      if (res && process.client) {
+        login(userAthentication.value);
+      }
+    });
+  }
 };
 
 onMounted(() => {

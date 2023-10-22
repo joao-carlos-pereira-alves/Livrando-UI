@@ -2,15 +2,17 @@
 import jwtDecode from "jwt-decode";
 import { defineStore } from "pinia";
 // import { Notify } from "quasar";
-import { useRouter } from '#imports'
+import { useRouter } from "#imports";
 
 export const authentication = defineStore("authentication", {
   state: () => ({
-    _auth: process.client ? JSON.parse(localStorage?._auth ? localStorage._auth : "{}") : "{}"
+    _auth: process.client
+      ? JSON.parse(localStorage?._auth ? localStorage._auth : "{}")
+      : "{}",
   }),
   getters: {
     jwtPayload(): any {
-      if (!(this?._auth?.token)) {
+      if (!this?._auth?.token) {
       }
 
       return jwtDecode(String(this._auth.token));
@@ -29,10 +31,9 @@ export const authentication = defineStore("authentication", {
         const response = await useApi("/login", {
           method: "post",
           body: {
-            user: user
+            user: user,
           },
-        }
-        )
+        });
 
         this._auth = response.data;
         localStorage._auth = JSON.stringify(this._auth);
@@ -49,8 +50,8 @@ export const authentication = defineStore("authentication", {
         //   query: { ...router?.currentRoute?.value?.query },
         // });
         router.push({
-          path: '/'
-        })
+          path: "/",
+        });
         return true;
       } catch (error) {
         console.log(error);
@@ -69,19 +70,18 @@ export const authentication = defineStore("authentication", {
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const response = await useApi("/users", {
+        const response = await useApi("/signup", {
           method: "post",
           body: {
-            user: user
+            user: user,
           },
-        }
-        )
+        });
 
         this._auth = response.data;
         localStorage._auth = JSON.stringify(this._auth);
         router.push({
-          path: '/'
-        })
+          path: "/",
+        });
         return true;
       } catch (error) {
         console.log(error);
@@ -93,6 +93,6 @@ export const authentication = defineStore("authentication", {
       const router = useRouter();
       localStorage.removeItem("_auth");
       router.push({ name: "Login" });
-    }
+    },
   },
 });
