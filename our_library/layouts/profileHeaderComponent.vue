@@ -20,6 +20,13 @@
           >
             {{ name_abbreviation() }}
           </q-avatar>
+          <q-btn
+            style="position: absolute; top: 80px; margin-left: 1.5rem"
+            round
+            color="red-10"
+            icon="edit"
+            @click="editable = true"
+          />
         </div>
         <div
           class="col-12 col-sm-12 col-md-12 col-lg-11 row items-center q-pt-md"
@@ -42,6 +49,7 @@
               dense
               :rules="[rules.required]"
               :disable="!editable"
+              color="secondary"
               @keypress.enter="onSubmit"
             />
           </div>
@@ -64,6 +72,7 @@
               :rules="[rules.required]"
               :disable="!editable"
               @keypress.enter="onSubmit"
+              color="secondary"
             />
           </div>
           <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
@@ -85,6 +94,7 @@
               :disable="!editable"
               :rules="[rules.required]"
               @keypress.enter="onSubmit"
+              color="secondary"
             />
           </div>
           <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
@@ -107,6 +117,7 @@
               :rules="[rules.required]"
               :disable="!editable"
               @keypress.enter="onSubmit"
+              color="secondary"
             />
           </div>
           <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
@@ -126,6 +137,7 @@
               :rules="['date']"
               :disable="!editable"
               placeholder="0000/00/00"
+              color="secondary"
             >
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
@@ -169,6 +181,7 @@
               :rules="[rules.required]"
               :disable="!editable"
               @keypress.enter="onSubmit"
+              color="secondary"
             />
           </div>
         </div>
@@ -177,46 +190,43 @@
   </q-card>
 </template>
 
-<script>
-export default {
-  data: () => ({
-    user: {
-      name: "João Carlos",
-      password: null,
-      birth_date: "",
-    },
-    rules: {
-      required: (v) => !!v || "Campo obrigatório",
-    },
-    loadingDOM: true,
-    editable: false
-  }),
-  methods: {
-    name_abbreviation() {
-      const [name, surname] = this.user.name.split(" ");
+<script setup>
+import { ref } from "vue";
+import { authentication } from "../store/modules/authentication";
 
-      return name.charAt(0) + surname.charAt(0);
-    },
-    async get_user() {
-      try {
-        const { data, execute } = await useApi("/show_user_with_uuid/" + this.$route.query.uuid, {
-          method: "get",
-          lazy: true,
-        });
-
-        await execute();
-
-        if (data?.value) {
-          this.user = data.value;
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-  },
-  mounted() {
-    this.loadingDOM = false;
-    this.get_user();
-  },
+const rules = {
+  required: (v) => !!v || "Campo obrigatório",
 };
+
+let loadingDOM = ref(true);
+const editable = ref(false);
+const { _auth } = authentication();
+const user = ref(_auth);
+
+function name_abbreviation() {
+  const [name, surname] = user.value.name.split(" ");
+  return name.charAt(0) + surname.charAt(0);
+}
+async function onSubmit() {
+  try {
+    const { data, execute } = await useApi("/users/" + user.value.id, {
+      method: "put",
+      lazy: true,
+      body: { user: user, uuid: user.value.uuid },
+      format: "json",
+    });
+
+    await execute();
+
+    if (data?.value) {
+      user = data.value;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+onBeforeMount(() => {
+  loadingDOM = false;
+});
 </script>
