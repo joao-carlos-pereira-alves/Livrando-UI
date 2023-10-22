@@ -69,7 +69,7 @@ export const authentication = defineStore("authentication", {
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const response = await useApi("/register", {
+        const response = await useApi("/users", {
           method: "post",
           body: {
             user: user

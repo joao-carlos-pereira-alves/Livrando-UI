@@ -12,7 +12,8 @@
         <q-form ref="registrationForm">
           <div class="q-mb-md">
             <label class="form-label">Nome</label>
-            <q-input outlined v-model="userAuthentication.name" placeholder="Insira seu nome" />
+            <q-input outlined v-model="userAuthentication.name" placeholder="Insira seu nome" lazy-rules
+              :rules="[rules.required]" @keypress.enter="onSubmit" />
           </div>
           <div class="q-mb-md">
             <label class="form-label">Email</label>
@@ -34,14 +35,15 @@
           </div>
           <div class="q-mb-md">
             <label class="form-label">Confirmar Senha</label>
-            <q-input type="password" outlined v-model="userAuthentication.confirmPassword" placeholder="Insira sua senha"
-              lazy-rules :rules="[rules.required]" @keypress.enter="onSubmit">
+            <q-input type="password" outlined v-model="userAuthentication.confirmPassword"
+              placeholder="Confirme sua senha" lazy-rules :rules="[rules.confirmPasswordMatch, rules.required]"
+              @keypress.enter="onSubmit">
               <template v-slot:prepend>
                 <q-icon name="lock_outline" color="black" />
               </template>
             </q-input>
           </div>
-          <div class="row">
+          <div class="column">
           </div>
           <div class="col-3 form-actions">
             <q-btn class="bg-red-10 text-grey-1 col-12" style="margin-bottom: 2em" @click="onSubmit">
@@ -86,14 +88,22 @@ const emailPattern =
 const rules = {
   required: (val: string) => (val && val.length > 0) || "Campo obrigatório",
   email: (val: string) => emailPattern.test(val) || "E-mail inválido",
+  confirmPasswordMatch: (val: string) => (val === userAuthentication.value.password) || "As senhas não coincidem",
 };
+const errorMessage = ref("");
 
 const onSubmit = () => {
   if (!registrationForm) return;
-
   registrationForm.value.validate().then(async (res: boolean) => {
     if (res && process.client) {
-      register(userAuthentication.value);
+      if (userAuthentication.value.password === userAuthentication.value.confirmPassword) {
+
+        register(userAuthentication.value);
+        errorMessage.value = "";
+      } else {
+
+        errorMessage.value = "As senhas não coincidem";
+      }
     }
   });
 };
