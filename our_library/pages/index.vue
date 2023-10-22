@@ -84,10 +84,10 @@
           </div>
           <div class="col-6 row justify-end">
             <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
-            <q-btn v-else class="text-red-10" outline @click="setOpenBookForm">
+            <q-btn v-else class="text-red-10" outline @click="openBookForm = true">
               Publicar
             </q-btn>
-            <BookForm :openBookForm="openBookForm" :key="openBookForm" />
+            <BookForm :openBookForm="openBookForm" @close="openBookForm = false" :categories="categories" />
           </div>
         </q-card-section>
         <q-card-section class="col-12">
@@ -211,11 +211,6 @@ const popularBookPagination = ref({
 });
 const categories = ref([]);
 
-const setOpenBookForm = () => {
-  console.log("bora fi", openBookForm);
-  openBookForm.value = true;
-};
-
 let openBookForm = ref(false);
 
 const popularBookPaginationPage = computed(
@@ -261,7 +256,7 @@ const getBooks = async (isPopular = false, filter_params: Object = {}) => {
     await execute();
 
     setTimeout(() => {
-      if (canAbort.value) abort();
+      if (canAbort?.value) abort();
     }, 400);
 
     if (data?.value) {
