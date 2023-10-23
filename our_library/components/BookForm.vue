@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineEmits, onMounted } from "vue";
+import { ref, computed, defineEmits } from "vue";
 import { authentication } from "../store/modules/authentication";
 
 const { $swal } = useNuxtApp();
