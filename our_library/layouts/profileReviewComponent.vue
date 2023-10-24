@@ -76,6 +76,9 @@
 </template>
 
 <script>
+import { ref } from "vue";
+import { authentication } from "../store/modules/authentication";
+
 export default {
   data: () => ({
     loadingDOM: true,
@@ -87,6 +90,20 @@ export default {
       loans: 0,
     },
   }),
+  setup() {
+    const { _auth } = authentication();
+    const review = ref({
+      published_books: _auth.published_books,
+      assessments: _auth.reviewed_books,
+      donations: _auth.donation_books,
+      exchanges: _auth.replacement_books,
+      loans: _auth.loan_books,
+    })
+
+    return {
+      review
+    }
+  },
   methods: {},
   mounted() {
     this.loadingDOM = false;

@@ -1,6 +1,18 @@
 <template>
   <q-page class="items-start text-black">
-    <BookTradeComponent :open="openBookTrade" :book="currentBookTrade" v-if="openBookTrade" />
+    <BookTradeComponent
+      v-model:open="openBookTrade"
+      :book="currentBookTrade"
+      :categories="categories"
+      v-if="openBookTrade"
+    />
+    <BookForm
+      v-if="openBookForm"
+      :openBookForm="openBookForm"
+      @close="openBookForm = false"
+      :categories="categories"
+      @created="unshiftBook"
+    />
     <div class="row">
       <div
         class="col-12 text-center q-mb-0 row justify-center"
@@ -22,7 +34,7 @@
             <q-btn
               class="text-white full-width"
               style="background-color: brown"
-              @click="openBookForm = true"
+              disable
             >
               Meus Livros
             </q-btn>
@@ -85,10 +97,14 @@
           </div>
           <div class="col-6 row justify-end">
             <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
-            <q-btn v-else class="text-red-10" outline @click="openBookForm = true">
+            <q-btn
+              v-else
+              class="text-red-10"
+              outline
+              @click="openBookForm = true"
+            >
               Publicar
             </q-btn>
-            <BookForm :openBookForm="openBookForm" @close="openBookForm = false" :categories="categories" />
           </div>
         </q-card-section>
         <q-card-section class="col-12">
@@ -112,7 +128,10 @@
               v-for="(book, index) in books"
               :key="book.id"
             >
-              <BookComponent :book="book" />
+              <BookComponent :book="book" @trade="setCurrentTrade" />
+            </div>
+            <div class="text-center col-12" v-if="!books.length">
+              Por enquanto está vazio.
             </div>
           </div>
         </q-card-section>
@@ -152,17 +171,20 @@
               class="col-12 col-sm-12 col-md-4 col-lg-3"
             />
           </div>
-          <div class="col-12 row" v-else>
+          <div class="col-12 row items-center" v-else>
             <div
               class="col-12 col-sm-12 col-md-4 col-lg-3"
               :class="{
                 'q-pl-md': Number(index) >= 1,
                 'q-py-md': !$q.screen.mobile,
               }"
-              v-for="(book, index) in books"
+              v-for="(book, index) in popularBooks"
               :key="book.id"
             >
               <BookComponent :book="book" @trade="setCurrentTrade" />
+            </div>
+            <div class="text-center col-12" v-if="!popularBooks.length">
+              Por enquanto está vazio.
             </div>
           </div>
         </q-card-section>
@@ -324,10 +346,13 @@ const updatePage = (page: Number, isPopular = false) => {
 };
 
 const setCurrentTrade = (book: Object) => {
-  currentBookTrade.value = { ...book }
-  console.log("o currentBookTrade: ", currentBookTrade)
+  currentBookTrade.value = { ...book };
   openBookTrade.value = true;
-}
+};
+
+const unshiftBook = (book: object) => {
+  books.value.unshift(book);
+};
 
 onBeforeMount(() => {
   getBooks();

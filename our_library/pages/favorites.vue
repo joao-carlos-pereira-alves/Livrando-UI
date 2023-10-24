@@ -110,6 +110,9 @@
             >
               <BookComponent :book="book" @deslike="removeBookFromList" />
             </div>
+            <div class="text-center col-12" v-if="!books.length">
+              Por enquanto está vazio.
+            </div>
           </div>
         </q-card-section>
       </q-card>

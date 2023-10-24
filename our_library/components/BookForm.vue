@@ -31,6 +31,7 @@
               lazy-rules
               color="secondary"
               dense
+              mask="###-#-#####-###-#"
             ></q-input>
           </div>
           <div class="col-12 col-sm-6" :class="{ 'q-pr-sm': !$q.screen.xs }">
@@ -78,7 +79,7 @@
               outlined
               v-model="book.publishing_company"
               :rules="[rules.required]"
-              label="Insira o autor"
+              label="Insira a editora"
               lazy-rules
               color="secondary"
               dense
@@ -121,6 +122,7 @@
               lazy-rules
               color="secondary"
               dense
+              min="1"
             ></q-input>
           </div>
           <div class="col-12 col-sm-6">
@@ -144,7 +146,7 @@
               outlined
               v-model="book.image"
               :rules="[(v) => !!v || 'Campo obrigatório']"
-              placeholder="Insira a capa do livro"
+              label="Insira a capa do livro"
               lazy-rules
               color="secondary"
               dense
@@ -163,7 +165,12 @@
               class="q-ml-sm q-mr-sm"
               @click="closeDialog"
             />
-            <q-btn label="Publicar" color="red-10" @click="createBook" />
+            <q-btn
+              label="Publicar"
+              color="red-10"
+              @click="createBook"
+              :loading="loadingCreateBook"
+            />
           </div>
         </q-form>
       </q-card-section>
@@ -182,7 +189,7 @@ const props = defineProps({
   openBookForm: { type: Boolean, default: false },
   categories: { type: Array, default: [] },
 });
-const emit = defineEmits();
+const emit = defineEmits(["created", "close"]);
 const open = computed(() => props.openBookForm);
 const book = ref<Book>({
   title: "",
@@ -192,37 +199,38 @@ const book = ref<Book>({
   publishing_company: "",
   publication_year: "",
   language: null,
-  amount: 0,
+  amount: null,
   negotiation_type: "",
-  responsible_id: 0,
-  added_by_id: 0,
+  responsible_id: null,
+  added_by_id: null,
   image: null,
 });
 const bookForm = ref(null);
 const languages = ref([
-  "portuguese",
-  "english",
-  "spanish",
-  "french",
-  "german",
-  "chinese",
-  "japanese",
-  "korean",
-  "arabic",
-  "russian",
-  "italian",
-  "dutch",
-  "hindi",
-  "bengali",
-  "urdu",
-  "turkish",
-  "persian",
-  "vietnamese",
-  "thai",
-  "indonesian",
-  "malay",
-  "swahili",
+  "Português",
+  "Inglês",
+  "Espanhol",
+  "Francês",
+  "Alemão",
+  "Chinês",
+  "Japonês",
+  "Coreano",
+  "Árabe",
+  "Russo",
+  "Italiano",
+  "Holandês",
+  "Hindi",
+  "Bengali",
+  "Urdu",
+  "Turco",
+  "Persa",
+  "Vietnamita",
+  "Tailandês",
+  "Indonésio",
+  "Malaio",
+  "Suaíli"
 ]);
+const loadingCreateBook = ref(false);
 
 interface Category {
   category_id: number;
@@ -311,15 +319,15 @@ const createBook = async () => {
           }
         });
 
-        const { data, execute } = await useApi("/books", {
+        loadingCreateBook.value = true;
+
+        const { data } = await useApi("/books", {
           method: "post",
           body: formData,
         });
 
-        await execute();
-
         if (data?.value) {
-          closeDialog();
+          resetForm();
           $swal.fire({
             position: "top-end",
             icon: "success",
@@ -327,6 +335,9 @@ const createBook = async () => {
             showConfirmButton: false,
             timer: 1500,
           });
+          emit("created", data?.value);
+          loadingCreateBook.value = false;
+          closeDialog();
         }
       } catch (error) {
         console.error("error", error);
@@ -359,6 +370,4 @@ const resetForm = async () => {
   };
   if (bookForm?.value) await bookForm.value.resetValidation();
 };
-
-setTimeout(() => resetForm(), 7000);
 </script>

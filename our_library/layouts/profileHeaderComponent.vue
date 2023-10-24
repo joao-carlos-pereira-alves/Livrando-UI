@@ -207,16 +207,15 @@ function name_abbreviation() {
   const [name, surname] = user.value.name.split(" ");
   return name.charAt(0) + surname.charAt(0);
 }
+
 async function onSubmit() {
   try {
-    const { data, execute } = await useApi("/users/" + user.value.id, {
+    const { data } = await useApi("/users/" + user.value.id, {
       method: "put",
       lazy: true,
-      body: { user: user, uuid: user.value.uuid },
+      body: { user: user },
       format: "json",
     });
-
-    await execute();
 
     if (data?.value) {
       user = data.value;

@@ -5,9 +5,9 @@
         Socilitar {{ formatTitleCard(book.negotiation_type)?.toLowerCase() }}
       </q-card-section>
       <q-card-section class="row">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-sm-4 flex-column text-center wrap">
           <q-img
-            :src="'https://picsum.photos/500/300?t=' + Math.random()"
+            :src="book?.image?.url ? baseUrl + book.image.url : noImage"
             spinner-color="white"
             style="height: 140px; max-width: 150px"
           />
@@ -57,7 +57,7 @@
             <q-select
               outlined
               :rules="[rules.requiredSelect]"
-              v-model="book.book_categories_attributes"
+              v-model="book.categories"
               :options="categories"
               multiple
               option-label="name"
@@ -166,12 +166,14 @@
           type="reset"
           color="red-10"
           class="q-ml-sm q-mr-sm"
+          @click="createTrade(book)"
         />
         <q-btn
           label="Cancelar"
           class="text-grey"
           outline
           style="background-color: rgba(0, 0, 0, 0.1)"
+          @click="closeDialog"
         />
       </q-card-section>
     </q-card>
@@ -179,6 +181,9 @@
 </template>
 
 <script>
+import NoImage from "../public/images/no_image.png";
+import { authentication } from "~/store/modules/authentication";
+
 export default {
   props: {
     open: {
@@ -190,6 +195,14 @@ export default {
       type: Object,
       required: true,
     },
+    categories: {
+      type: Array,
+      required: true,
+      default: [],
+    },
+  },
+  components: {
+    NoImage,
   },
   data: () => ({
     rules: {
@@ -201,11 +214,71 @@ export default {
       { title: "Empréstimo", id: 3, model_name: "loan" },
     ],
   }),
+  setup(_, { emit }) {
+    const { $swal } = useNuxtApp();
+    const { _auth } = authentication();
+    const config = useRuntimeConfig();
+    const baseUrl = config.public.baseURL.replace("/api/v1", "");
+    const noImage = NoImage;
+
+    const closeDialog = () => {
+      emit("update:open", false);
+    }
+
+    const createTrade = async (book) => {
+      try {
+        const { status, error } = await useApi("/trades", {
+          method: "post",
+          body: {
+            trade: {
+              book_id: book.id,
+              negotiator_id: book.responsible_id,
+              sender_id: _auth.id,
+              category: book.negotiation_type,
+              negociation_date: new Date().toLocaleDateString(),
+            },
+          },
+        });
+
+        if (status?.value == "success") {
+          $swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Solicitação Feita!",
+            text: "Agora é só esperar o proprietário te enviar uma mensagem",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          
+        }
+
+        if (status?.value == "error") {
+          if (error?.value?.data?.base) {
+            const errorMessage = error.value.data.base;
+            $swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: errorMessage + ".",
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          }
+        }
+
+        closeDialog();
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    return {
+      baseUrl,
+      noImage,
+      createTrade,
+      closeDialog
+    };
+  },
   methods: {
-    closeDialog() {
-      // deixar async
-      this.emit("update:boolean", false);
-    },
     formatTitleCard(negotiation_type = "donation") {
       const categories = {
         replacement: "Troca",

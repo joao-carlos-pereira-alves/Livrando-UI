@@ -146,7 +146,7 @@ const chatMessagesPagination = ref({
 });
 
 // Websocket settings
-const websocketURL = `ws://${config.public.baseWsUrl}/websocket`;
+const websocketURL = `${process.env.NODE_ENV == 'production' ? 'wss' : 'ws'}://${config.public.baseWsUrl}/websocket`;
 const socket       = new WebSocket(websocketURL);
 
 socket.addEventListener("open", (event) => {
@@ -166,7 +166,7 @@ socket.addEventListener("message", (event) => {
     if (currentChat?.value?.messages) {
       currentChat.value.messages.push({
         body: body,
-        current_user: user_id == currentUserId,
+        current_user: user_id == currentUserId
       });
     }
   }
@@ -337,7 +337,10 @@ const sendMessage = (chat_id, message) => {
 const setLastMessageChat = (chat_id, message) => {
   const chat = chats?.value?.find((res) => res.id == chat_id);
 
-  if (chat && message) chat.last_message = message;
+  if (chat && message) {
+    chat.last_message = message;
+    chat.last_message_sent_date = null;
+  }
 }
 
 const clearInputMessage = () => chatMessage.value = ""

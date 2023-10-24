@@ -2,18 +2,30 @@
   <q-card class="shadow-0">
     <q-card-section class="book-card q-pa-lg row items-center justify-center">
       <q-img
-        src="https://cdn.quasar.dev/img/parallax2.jpg"
+        :src="book?.image?.url ? baseUrl + book.image.url : noImage"
         spinner-color="white"
         class="image"
       />
     </q-card-section>
-    <q-card-section class="row">
+    <q-card-section class="row q-pl-none">
+      <div class="col-12 row">
+        <div class="col-4 col-md-3 q-pr-sm" v-for="category in book.categories" :key="category">
+          <q-badge class="full-width text-center" style="font-size: 12px;">
+            {{ category }}
+          </q-badge>
+        </div>
+      </div>
       <div class="col-12">{{ book.title }}</div>
       <div class="col-12">
         <small> by {{ book.author }} </small>
       </div>
-      <div class="col-6 text-red-10 text-weight-bold" @click="$emit('trade', book)">
+      <div class="col-6 text-red-10 text-weight-bold link" @click="$emit('trade', book)" v-if="!book.added_by_me">
         {{ negotiationTypes[book.negotiation_type] }}
+      </div>
+      <div class="col-6 text-grey text-weight-bold flex" v-else>
+        <div class="">
+          {{ negotiationTypes[book.negotiation_type] }}
+        </div>
       </div>
       <div class="col-6 text-right">
         <q-icon
@@ -30,6 +42,7 @@
 <script>
 import { toRefs, ref, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
+import NoImage from '../public/images/no_image.png'
 
 export default {
   props: {
@@ -38,7 +51,11 @@ export default {
       type: Object,
     },
   },
+  components: {
+    NoImage
+  },
   setup(props, context) {
+    const config = useRuntimeConfig();
     const { book } = toRefs(props);
     const { _auth } = authentication();
     const liked = ref(false);
@@ -48,7 +65,8 @@ export default {
       loan: "Empréstimo",
       donation: "Doação",
     };
-
+    const baseUrl = config.public.baseURL.replace('/api/v1', '')
+    const noImage = NoImage
     const emitDeslikEvent = (book_id) => {
       context.emit('deslike', book_id);
     };
@@ -107,7 +125,9 @@ export default {
       like,
       deslike,
       liked,
-      handle_like
+      handle_like,
+      baseUrl,
+      noImage
     };
   },
 };

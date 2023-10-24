@@ -11,16 +11,28 @@
         </q-card-section>
         <q-card-section>
           <q-form ref="loginForm">
-            <div class="q-mb-md" v-if="!isLoginAction">
+            <div v-if="!isLoginAction">
               <label class="form-label">Nome</label>
               <q-input
-                outlined
                 v-model="userAthentication.name"
-                placeholder="Insira seu nome"
                 :rules="[rules.required]"
+                outlined
+                dense
+                placeholder="Insira seu nome"
               />
             </div>
-            <div class="q-mb-md">
+            <div v-if="!isLoginAction">
+              <label class="form-label">CPF</label>
+              <q-input
+                outlined
+                v-model="userAthentication.cpf"
+                placeholder="000.000.000-00"
+                mask="###.###.###-##"
+                :rules="[rules.required]"
+                dense
+              />
+            </div>
+            <div>
               <label class="form-label">Email</label>
               <q-input
                 type="email"
@@ -29,14 +41,29 @@
                 placeholder="Insira seu e-mail"
                 lazy-rules
                 :rules="[rules.required, rules.email]"
-                @keypress.enter="onSubmit"
+                dense
               >
                 <template v-slot:prepend>
                   <q-icon name="mail_outline" color="black" />
                 </template>
               </q-input>
             </div>
-            <div class="q-mb-md">
+            <div v-if="!isLoginAction">
+              <label class="form-label">Telefone</label>
+              <q-input
+                outlined
+                v-model="userAthentication.phone"
+                placeholder="(00) 0 0000-0000"
+                mask="(##) # ####-####"
+                :rules="[rules.required]"
+                dense
+              >
+              <template v-slot:prepend>
+                  <q-icon name="phone" color="black" />
+                </template>
+              </q-input>
+            </div>
+            <div>
               <label class="form-label">Senha</label>
               <q-input
                 type="password"
@@ -45,22 +72,26 @@
                 placeholder="Insira sua senha"
                 lazy-rules
                 :rules="[rules.required]"
-                @keypress.enter="onSubmit"
+                dense
               >
                 <template v-slot:prepend>
                   <q-icon name="lock_outline" color="black" />
                 </template>
               </q-input>
             </div>
-            <div class="q-mb-md" v-if="!isLoginAction">
+            <div v-if="!isLoginAction">
               <label class="form-label">Confirmar Senha</label>
               <q-input
+                v-model="userAthentication.password_confirmation"
+                :rules="[rules.required, rules.confirmPasswordMatch]"
                 type="password"
                 outlined
-                v-model="userAthentication.confirmPassword"
                 label="Insira sua senha"
-                :rules="[rules.required, rules.confirmPasswordMatch]"
-              />
+                dense
+                ><template v-slot:prepend>
+                  <q-icon name="lock_outline" color="black" />
+                </template>
+              </q-input>
             </div>
             <div class="row">
               <div class="col-6">
@@ -117,8 +148,10 @@ const userAthentication = ref({
   name: "",
   email: "",
   password: "",
-  confirmPassword: "",
+  password_confirmation: "",
   remember: false,
+  cpf: "",
+  phone: "",
 });
 const emailPattern =
   /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
@@ -135,12 +168,7 @@ const onSubmit = () => {
   if (isLoginAction.value === false) {
     loginForm.value.validate().then(async (res: boolean) => {
       if (res && process.client) {
-        const user = {
-          name: userAthentication.value.name,
-          email: userAthentication.value.email,
-          password: userAthentication.value.password,
-        };
-        register(user);
+        register(userAthentication.value);
       }
     });
   } else {
