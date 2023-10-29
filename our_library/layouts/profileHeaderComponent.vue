@@ -18,7 +18,11 @@
             v-else
             style="background-color: #badcc8"
           >
-            {{ name_abbreviation() }}
+            <q-img
+              :src="user?.image?.url ? baseUrl + user.image.url : NoImage"
+              spinner-color="white"
+              class="image"
+            />
           </q-avatar>
           <q-btn
             style="position: absolute; top: 80px; margin-left: 1.5rem"
@@ -191,22 +195,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
+import NoImage from "../public/images/user_not_found.png";
 
 const rules = {
   required: (v) => !!v || "Campo obrigatório",
 };
 
-let loadingDOM = ref(true);
+const config = useRuntimeConfig();
+const loadingDOM = ref(true);
 const editable = ref(false);
 const { _auth } = authentication();
 const user = ref(_auth);
-
-function name_abbreviation() {
-  const [name, surname] = user.value.name.split(" ");
-  return name.charAt(0) + surname.charAt(0);
-}
+const baseUrl = config.public.baseURL.replace("/api/v1", "");
 
 async function onSubmit() {
   try {
@@ -225,7 +227,7 @@ async function onSubmit() {
   }
 }
 
-onBeforeMount(() => {
-  loadingDOM = false;
+onMounted(() => {
+  loadingDOM.value = false;
 });
 </script>

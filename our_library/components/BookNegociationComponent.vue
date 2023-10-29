@@ -2,7 +2,13 @@
   <q-dialog v-model="openDialog" persistent>
     <q-card style="min-width: min(85vw, 500px)">
       <q-card-section class="text-red-10 text-weight-bold">
-        Socilitar {{ formatTitleCard(book.negotiation_type)?.toLowerCase() }}
+        {{
+          trade.status == "completed"
+            ? "Negociação finalizada"
+            : `Solicitar ${formatTitleCard(
+                book.negotiation_type
+              )?.toLowerCase()}`
+        }}
       </q-card-section>
       <q-card-section class="row">
         <div class="col-12 col-sm-4 flex-column text-center wrap">
@@ -11,13 +17,7 @@
             spinner-color="white"
             style="height: 140px; max-width: 150px"
           />
-          <q-rating
-            v-model="book.average_rating"
-            size="1.8em"
-            :max="5"
-            color="yellow"
-            disable
-          />
+          <q-rating class="q-mt-sm" size="1.8em" :max="5" color="yellow" />
         </div>
         <div class="col-12 col-sm-8 row">
           <div class="col-12 col-sm-6" :class="{ 'q-pr-sm': !$q.screen.xs }">
@@ -64,7 +64,7 @@
               outlined
               :rules="[rules.requiredSelect]"
               v-model="book.categories"
-              :options="categories"
+              :options="book.categories"
               multiple
               option-label="name"
               label="Selecione uma categoria"
@@ -166,14 +166,7 @@
           </div>
         </div>
       </q-card-section>
-      <q-card-section class="row justify-end">
-        <q-btn
-          label="Solicitar"
-          type="reset"
-          color="red-10"
-          class="q-ml-sm q-mr-sm"
-          @click="createTrade(book)"
-        />
+      <q-card-section class="row justify-end q-pr-sm">
         <q-btn
           label="Cancelar"
           class="text-grey"
@@ -181,6 +174,28 @@
           style="background-color: rgba(0, 0, 0, 0.1)"
           @click="closeDialog"
         />
+        <q-btn
+          :label="
+            trade.status == 'completed'
+              ? 'Negociação finalizada'
+              : 'Concluir negociação'
+          "
+          type="reset"
+          :color="trade.status == 'completed' ? 'green' : 'red-10'"
+          :disable="
+            trade.status == 'completed' || trade.negotiator_id != _auth.id
+          "
+          class="q-ml-sm q-mr-sm"
+          @click="updateTrade(trade.id)"
+        >
+          <q-tooltip
+            v-if="
+              trade.status != 'completed' && trade.negotiator_id != _auth.id
+            "
+          >
+            Apenas o responsável pelo livro pode concluir a negociação.
+          </q-tooltip>
+        </q-btn>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -188,7 +203,7 @@
 
 <script>
 import NoImage from "../public/images/no_image.png";
-import { authentication } from "~/store/modules/authentication";
+import { authentication } from "../store/modules/authentication";
 
 export default {
   props: {
@@ -197,14 +212,13 @@ export default {
       required: true,
       default: false,
     },
-    book: {
+    trade: {
       type: Object,
       required: true,
     },
-    categories: {
-      type: Array,
+    book: {
+      type: Object,
       required: true,
-      default: [],
     },
   },
   components: {
@@ -231,17 +245,13 @@ export default {
       emit("update:open", false);
     };
 
-    const createTrade = async (book) => {
+    const updateTrade = async (trade_id) => {
       try {
-        const { status, error } = await useApi("/trades", {
-          method: "post",
+        const { status, error } = await useApi("/trades/" + trade_id, {
+          method: "put",
           body: {
             trade: {
-              book_id: book.id,
-              negotiator_id: book.responsible_id,
-              sender_id: _auth.id,
-              category: book.negotiation_type,
-              negociation_date: new Date().toLocaleDateString(),
+              status: "completed",
             },
           },
         });
@@ -250,11 +260,12 @@ export default {
           $swal.fire({
             position: "center",
             icon: "success",
-            title: "Solicitação Feita!",
-            text: "Agora é só esperar o proprietário te enviar uma mensagem",
+            title: "Negociação concluída!",
             showConfirmButton: false,
             timer: 1500,
           });
+
+          emit("trade", "completed");
         }
 
         if (status?.value == "error") {
@@ -279,8 +290,9 @@ export default {
     return {
       baseUrl,
       noImage,
-      createTrade,
+      updateTrade,
       closeDialog,
+      _auth,
     };
   },
   methods: {

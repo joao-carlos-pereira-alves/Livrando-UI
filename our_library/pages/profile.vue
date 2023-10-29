@@ -9,16 +9,20 @@
         <h3 class="text-red-10 text-weight-bold" v-else>Perfil</h3>
       </div>
       <div class="col-12 q-mb-lg">
-        <ProfileHeaderComponent />
+        <q-skeleton type="rect" width="100%" height="150px" v-if="loadingDOM" />
+        <ProfileHeaderComponent v-else />
       </div>
       <div class="col-12 q-mb-md">
-        <ProfileReviewComponent  />
+        <q-skeleton type="rect" width="100%" height="75px" v-if="loadingDOM" />
+        <ProfileReviewComponent v-else />
       </div>
-      <div class="col-12 col-sm-12 col-md-4">
-        <ProfileNegociationComponent />
+      <div class="col-12 col-sm-12 col-md-4" :class="{'q-pr-sm': loadingDOM}">
+        <q-skeleton type="rect" width="100%" height="150px" v-if="loadingDOM" />
+        <ProfileNegociationComponent v-else />
       </div>
-      <div class="col-12 col-sm-12 col-md-8 q-mb-md" :class="{'q-pl-sm': !$q.screen.xs && !$q.screen.sm, 'q-mt-sm': $q.screen.xs || $q.screen.sm }">
-        <ChatComponent />
+      <div class="col-12 col-sm-12 col-md-8 q-mb-md" :class="{'q-pl-sm': !$q.screen.xs && !$q.screen.sm, 'q-mt-sm': ($q.screen.xs || $q.screen.sm) && !loadingDOM }">
+        <q-skeleton type="rect" width="100%" height="150px" v-if="loadingDOM" />
+        <ChatComponent v-else />
       </div>
     </div>
   </q-page>
@@ -32,7 +36,6 @@ import ChatComponent from "../layouts/chatComponent.vue";
 import { ref, onMounted } from "vue";
 
 const loadingDOM = ref(true);
-const loadingBooks = ref(true);
 
 onMounted(() => {
   loadingDOM.value = false;

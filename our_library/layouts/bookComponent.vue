@@ -20,11 +20,11 @@
         <small> by {{ book.author }} </small>
       </div>
       <div class="col-6 text-red-10 text-weight-bold link" @click="$emit('trade', book)" v-if="!book.added_by_me">
-        {{ negotiationTypes[book.negotiation_type] }}
+        {{ book?.status == 'completed' && book?.amount <= 0 ? 'Negociado' : negotiationTypes[book.negotiation_type] }}
       </div>
       <div class="col-6 text-grey text-weight-bold flex" v-else>
         <div class="">
-          {{ negotiationTypes[book.negotiation_type] }}
+          {{ book?.status == 'completed' ? 'Negociado' : negotiationTypes[book.negotiation_type] }}
         </div>
       </div>
       <div class="col-6 text-right">

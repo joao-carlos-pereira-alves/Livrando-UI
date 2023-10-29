@@ -22,7 +22,7 @@
         <q-skeleton type="QAvatar" v-if="loadingDOM" />
         <q-avatar class="toolbar-actions" size="38px" v-else>
           <img
-            src="https://robohash.org/3b428839bab087e7469213e7887e9e2d?set=set4&bgset=&size=200x200"
+            :src="_auth?.avatar?.url ? baseUrl + _auth.avatar.url : NoImage"
           />
         </q-avatar>
         <q-skeleton
@@ -55,13 +55,16 @@
 
 <script setup>
 import { authentication } from "../store/modules/authentication";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, defineAsyncComponent  } from "vue";
+import NoImage from "../public/images/user_not_found.png"
 
 const loadingDOM = ref(true);
 const useAuthentication = authentication();
+const config = useRuntimeConfig();
 
 const { logout } = useAuthentication;
 const _auth = computed(() => useAuthentication._auth);
+const baseUrl = config.public.baseURL.replace('/api/v1', '')
 
 onMounted(() => {
   loadingDOM.value = false;

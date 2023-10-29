@@ -5,7 +5,11 @@
   >
     <q-card-section class="col-12 col-sm-12 col-md-4 q-pr-none">
       <q-card class="chat-section">
-        <q-list bordered class="rounded-borders q-pr-sm">
+        <q-list
+          bordered
+          class="rounded-borders q-pr-sm"
+          style="overflow-x: auto; max-height: 300px"
+        >
           <q-item-label header>Suas conversas</q-item-label>
           <q-item
             v-for="chat in chats"
@@ -16,7 +20,19 @@
           >
             <q-item-section avatar>
               <q-avatar>
-                <img src="https://cdn.quasar.dev/img/avatar2.jpg" />
+                <q-img
+                  :src="
+                    chat?.users?.filter((user) => user.id != currentUserId)[0]
+                      .avatar?.url
+                      ? baseUrl +
+                        chat?.users?.filter(
+                          (user) => user.id != currentUserId
+                        )[0].avatar.url
+                      : NoImage
+                  "
+                  spinner-color="white"
+                  class="image"
+                />
               </q-avatar>
             </q-item-section>
 
@@ -27,7 +43,7 @@
               }}</q-item-label>
               <q-item-label caption lines="2">
                 <span class="text-weight-bold">
-                  {{ chat.last_message || "" }}
+                  {{ chat.last_message.body || "" }}
                 </span>
               </q-item-label>
             </q-item-section>
@@ -52,7 +68,15 @@
         <q-card-section class="col-12 row items-center">
           <div class="col-2 col-sm-1 col-md-2 col-lg-1 text-start">
             <q-avatar size="55px">
-              <img src="https://cdn.quasar.dev/img/avatar4.jpg" />
+              <q-img
+                :src="
+                  currentChat?.image?.url
+                    ? baseUrl + currentChat.image.url
+                    : NoImage
+                "
+                spinner-color="white"
+                class="image"
+              />
             </q-avatar>
           </div>
           <div class="col-10 col-sm-10 col-lg-10 row q-pl-md">
@@ -126,6 +150,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { authentication } from "../store/modules/authentication";
+import NoImage from "../public/images/user_not_found.png";
 
 const config = useRuntimeConfig();
 const chatMessage = ref(null);
@@ -144,39 +169,45 @@ const chatMessagesPagination = ref({
   per_page: 10,
   total: 0,
 });
+const baseUrl = config.public.baseURL.replace("/api/v1", "");
+let socket;
 
-// Websocket settings
-const websocketURL = `${process.env.NODE_ENV == 'production' ? 'wss' : 'ws'}://${config.public.baseWsUrl}/websocket`;
-const socket       = new WebSocket(websocketURL);
+function ws() {
+  // Websocket settings
+  const websocketURL = `${
+    process.env.NODE_ENV == "production" ? "wss" : "ws"
+  }://${config.public.baseWsUrl}/websocket`;
+  socket = new WebSocket(websocketURL);
 
-socket.addEventListener("open", (event) => {
-  console.log("WebSocket connected:", event);
-});
+  socket.addEventListener("open", (event) => {
+    console.log("WebSocket connected:", event);
+  });
 
-socket.addEventListener("close", (event) => {
-  console.log("WebSocket disconnected:", event);
-});
+  socket.addEventListener("close", (event) => {
+    console.log("WebSocket disconnected:", event);
+  });
 
-socket.addEventListener("message", (event) => {
-  const data = JSON.parse(event.data);
+  socket.addEventListener("message", (event) => {
+    const data = JSON.parse(event.data);
 
-  if (data?.message?.type?.includes("message")) {
-    const { body, user_id } = data?.message || {};
+    if (data?.message?.type?.includes("message")) {
+      const { body, user_id } = data?.message || {};
 
-    if (currentChat?.value?.messages) {
-      currentChat.value.messages.push({
-        body: body,
-        current_user: user_id == currentUserId
-      });
+      if (currentChat?.value?.messages) {
+        currentChat.value.messages.push({
+          body: body,
+          current_user: user_id == currentUserId,
+        });
+      }
     }
-  }
 
-  if (data?.message?.type?.includes("status_user")) {
-    const { status } = data?.message || {};
+    if (data?.message?.type?.includes("status_user")) {
+      const { status } = data?.message || {};
 
-    currentChat.value.online = status || false;
-  }
-});
+      currentChat.value.online = status || false;
+    }
+  });
+}
 
 const calculateElapsedTime = (initialDate) => {
   if (!initialDate || initialDate == null) return "";
@@ -205,6 +236,8 @@ const calculateElapsedTime = (initialDate) => {
 };
 
 const setCurrentChat = async (chat_user) => {
+  if (currentChat.value) onUnSubscribe(currentChat.value.id);
+
   try {
     loadingCurrentChat.value = true;
 
@@ -258,8 +291,8 @@ const getMessages = async (chat_id) => {
   try {
     const { data, execute } = await useApi(`/chat/${chat_id}/messages`, {
       params: {
-        ...chatMessagesPagination.value
-      }
+        ...chatMessagesPagination.value,
+      },
     });
 
     await execute();
@@ -312,10 +345,12 @@ const onUnSubscribe = (chat_id) => {
     identifier: JSON.stringify({ channel: "ChatChannel", chat_id: chat_id }),
   };
 
-  socket.send(JSON.stringify(subscriptionMessage));
+  if (socket) socket.send(JSON.stringify(subscriptionMessage));
 };
 
-const onClose = () => socket.close();
+const onClose = () => {
+  if (socket) socket.close();
+};
 
 const sendMessage = (chat_id, message) => {
   const messageData = {
@@ -341,12 +376,13 @@ const setLastMessageChat = (chat_id, message) => {
     chat.last_message = message;
     chat.last_message_sent_date = null;
   }
-}
+};
 
-const clearInputMessage = () => chatMessage.value = ""
+const clearInputMessage = () => (chatMessage.value = "");
 
 onMounted(() => {
   getChats();
+  ws();
 });
 
 onBeforeUnmount(() => {

@@ -82,10 +82,6 @@
           <div class="col-6 text-red-10 text-h4 text-weight-bold" v-else>
             Novos
           </div>
-          <div class="col-6 row justify-end">
-            <q-skeleton type="QBtn" class="text-subtitle1" v-if="loadingDOM" />
-            <q-btn class="text-red-10" outline v-else> Ver Mais </q-btn>
-          </div>
         </q-card-section>
         <q-card-section class="col-12">
           <q-separator style="background-color: #f5f1e3" />

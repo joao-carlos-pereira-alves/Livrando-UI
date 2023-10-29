@@ -146,6 +146,8 @@
               outlined
               v-model="book.image"
               :rules="[(v) => !!v || 'Campo obrigatório']"
+              max-files="1"
+              accept="image/*"
               label="Insira a capa do livro"
               lazy-rules
               color="secondary"

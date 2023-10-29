@@ -29,39 +29,42 @@ export const authentication = defineStore("authentication", {
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const response = await useApi("/login", {
+        const { data, status } = await useApi("/login", {
           method: "post",
           body: {
             user: user,
           },
         });
 
-        this._auth = response.data;
-        localStorage._auth = JSON.stringify(this._auth);
+        if (status?.value == "success") {
+          this._auth = data.value;
+          localStorage._auth = JSON.stringify(this._auth);
 
-        // Notify.create({
-        //   color: "positive",
-        //   message: "Login realizado com sucesso",
-        //   icon: "thumb_up",
-        //   position: "bottom-right",
-        // });
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Login realizado com sucesso.",
+            showConfirmButton: false,
+            timer: 1500,
+          });
 
-        // router.push({
-        //   name: "Dashboard",
-        //   query: { ...router?.currentRoute?.value?.query },
-        // });
-        router.push({
-          path: "/",
-        });
+          router.push({
+            path: "/",
+          });
+        }
+
+        if (status?.value == "error") {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "E-mail ou senha inválidos.",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+
         return true;
       } catch (error) {
-        console.log(error);
-        // Notify.create({
-        //   color: "warning",
-        //   message: "E-mail ou senha inválidos",
-        //   icon: "thumb_down",
-        //   position: "bottom-right",
-        // });
         return error;
       }
     },
