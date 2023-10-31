@@ -130,5 +130,9 @@ export const authentication = defineStore("authentication", {
       localStorage.removeItem("_auth");
       router.push({ name: "Login" });
     },
+    updateUser(user: Object) {
+      this._auth = user;
+      localStorage._auth = JSON.stringify(this._auth);
+    },
   },
 });

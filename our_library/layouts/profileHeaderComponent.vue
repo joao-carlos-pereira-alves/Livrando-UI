@@ -17,25 +17,46 @@
             class="text-white text-caption"
             v-else
             style="background-color: #badcc8"
+            v-model="user.avatar"
           >
             <q-img
-              :src="user?.image?.url ? baseUrl + user.image.url : NoImage"
+              :src="user?.avatar?.url ? baseUrl + user.avatar.url : NoImage"
               spinner-color="white"
               class="image"
-            />
+            >
+            </q-img>
           </q-avatar>
           <q-btn
-            style="position: absolute; top: 80px; margin-left: 1.5rem"
+            style="position: absolute; top: 88px; margin-left: 1.5rem"
             round
             color="red-10"
             icon="edit"
+            dense
             @click="editable = true"
           />
         </div>
         <div
-          class="col-12 col-sm-12 col-md-12 col-lg-11 row items-center q-pt-md"
+          class="col-12 col-sm-12 col-md-12 col-lg-11 row items-start q-pt-md"
         >
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-7 col-lg-3 q-px-sm">
+            <q-file
+              outlined
+              v-model="user.avatar"
+              :rules="[(v) => !!v || 'Campo obrigatório']"
+              max-files="1"
+              accept="image/*"
+              label="Foto de perfil"
+              lazy-rules
+              color="secondary"
+              dense
+              :disable="!editable"
+            >
+              <template v-slot:prepend>
+                <q-icon name="upload" color="secondary" />
+              </template>
+            </q-file>
+          </div>
+          <div class="col-12 col-sm-12 col-md-7 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -57,7 +78,7 @@
               @keypress.enter="onSubmit"
             />
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -77,9 +98,13 @@
               :disable="!editable"
               @keypress.enter="onSubmit"
               color="secondary"
-            />
+            >
+              <template v-slot:prepend>
+                <q-icon name="mail_outline" color="black" />
+              </template>
+            </q-input>
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -96,12 +121,11 @@
               v-model="user.password"
               dense
               :disable="!editable"
-              :rules="[rules.required]"
               @keypress.enter="onSubmit"
               color="secondary"
             />
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -124,7 +148,7 @@
               color="secondary"
             />
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -165,7 +189,7 @@
               </template>
             </q-input>
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-2 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -203,24 +227,64 @@ const rules = {
   required: (v) => !!v || "Campo obrigatório",
 };
 
+const { $swal } = useNuxtApp();
 const config = useRuntimeConfig();
 const loadingDOM = ref(true);
 const editable = ref(false);
-const { _auth } = authentication();
+const { _auth, updateUser } = authentication();
 const user = ref(_auth);
 const baseUrl = config.public.baseURL.replace("/api/v1", "");
 
 async function onSubmit() {
+  const form = Object.entries(user.value).reduce((acc, [key, value]) => {
+    if (value !== "") {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+  if (user?.avatar?.length == 0) delete user.avatar;
+  if (user?.avatar?.length) user.avatar = user.avatar[0];
+
+  const formData = new FormData();
+
+  Object.keys(form).forEach((key) => {
+    formData.append(`user[${key}]`, form[key]);
+  });
+
   try {
-    const { data } = await useApi("/users/" + user.value.id, {
+    const { data, status } = await useApi("/users/" + user.value.id, {
       method: "put",
       lazy: true,
-      body: { user: user },
-      format: "json",
+      body: formData,
     });
 
-    if (data?.value) {
-      user = data.value;
+    if (status?.value == "success") {
+      $swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Usuário atualizado!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      if (data?.value) {
+        user.value = data.value;
+        updateUser(user.value);
+      }
+    }
+
+    if (status?.value == "error") {
+      if (error?.value?.data?.base) {
+        const errorMessage = error.value.data.base;
+        $swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: errorMessage + ".",
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      }
     }
   } catch (error) {
     console.error(error);
