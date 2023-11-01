@@ -60,7 +60,7 @@
           v-if="trade.book"
         >
           <q-rating
-            v-model="trade.book.average_rating"
+            v-model="trade.book.rating"
             size="1.8em"
             :max="5"
             color="yellow"

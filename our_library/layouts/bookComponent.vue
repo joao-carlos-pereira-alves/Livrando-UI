@@ -5,12 +5,29 @@
         :src="book?.image?.url ? baseUrl + book.image.url : noImage"
         spinner-color="white"
         class="image"
+        fit="contain"
       />
     </q-card-section>
     <q-card-section class="row q-pl-none">
+      <div class="col-12 q-mb-sm">
+        <q-rating
+          v-model="book.rating"
+          class="q-mt-sm"
+          size="1.8em"
+          :max="5"
+          color="yellow"
+          disable
+          @click="openRatingDialog = true"
+        />
+      </div>
       <div class="col-12 row">
-        <div class="col-4 col-md-3 q-pr-sm" v-for="category in book.categories" :key="category">
-          <q-badge class="full-width text-center" style="font-size: 12px;">
+        <div
+          class="col-6 col-sm-2 col-md-2 q-pr-sm text-start"
+          v-for="category in book.categories"
+          :key="category"
+          :class="{'q-mr-md': $q.screen.xs }"
+        >
+          <q-badge class="text-center" style="font-size: 12px">
             {{ category }}
           </q-badge>
         </div>
@@ -19,12 +36,24 @@
       <div class="col-12">
         <small> by {{ book.author }} </small>
       </div>
-      <div class="col-6 text-red-10 text-weight-bold link" @click="$emit('trade', book)" v-if="!book.added_by_me">
-        {{ book?.status == 'completed' && book?.amount <= 0 ? 'Negociado' : negotiationTypes[book.negotiation_type] }}
+      <div
+        class="col-6 text-red-10 text-weight-bold link"
+        @click="$emit('trade', book)"
+        v-if="!book.added_by_me"
+      >
+        {{
+          book?.status == "completed" && book?.amount <= 0
+            ? "Negociado"
+            : negotiationTypes[book.negotiation_type]
+        }}
       </div>
       <div class="col-6 text-grey text-weight-bold flex" v-else>
         <div class="">
-          {{ book?.status == 'completed' ? 'Negociado' : negotiationTypes[book.negotiation_type] }}
+          {{
+            book?.status == "completed"
+              ? "Negociado"
+              : negotiationTypes[book.negotiation_type]
+          }}
         </div>
       </div>
       <div class="col-6 text-right">
@@ -42,7 +71,7 @@
 <script>
 import { toRefs, ref, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
-import NoImage from '../public/images/no_image.png'
+import NoImage from "../public/images/no_image.png";
 
 export default {
   props: {
@@ -52,7 +81,7 @@ export default {
     },
   },
   components: {
-    NoImage
+    NoImage,
   },
   setup(props, context) {
     const config = useRuntimeConfig();
@@ -65,10 +94,10 @@ export default {
       loan: "Empréstimo",
       donation: "Doação",
     };
-    const baseUrl = config.public.baseURL.replace('/api/v1', '')
-    const noImage = NoImage
+    const baseUrl = config.public.baseURL.replace("/api/v1", "");
+    const noImage = NoImage;
     const emitDeslikEvent = (book_id) => {
-      context.emit('deslike', book_id);
+      context.emit("deslike", book_id);
     };
 
     const like = async () => {
@@ -78,10 +107,10 @@ export default {
           body: {
             favorite_book: {
               user_id: user_id,
-              book_id: book.value.id
-            }
+              book_id: book.value.id,
+            },
           },
-          lazy: true
+          lazy: true,
         });
 
         liked.value = true;
@@ -96,13 +125,13 @@ export default {
         await useApi(`/favorite_books/deslike`, {
           method: "post",
           params: {
-            book_id: book_id
+            book_id: book_id,
           },
           lazy: true,
         });
 
         liked.value = false;
-        emitDeslikEvent(book_id)
+        emitDeslikEvent(book_id);
       } catch (error) {
         console.error(error);
       }
@@ -112,9 +141,9 @@ export default {
       if (book.value?.liked || liked.value) {
         deslike();
       } else {
-        like()
+        like();
       }
-    }
+    };
 
     onMounted(() => {
       liked.value = book.value?.favorited;
@@ -127,7 +156,7 @@ export default {
       liked,
       handle_like,
       baseUrl,
-      noImage
+      noImage,
     };
   },
 };
