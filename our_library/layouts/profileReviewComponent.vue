@@ -72,14 +72,25 @@
     >
       {{ review.loans }} Empréstimos
     </q-card-section>
+    <q-card-section
+      class="col-12 col-sm-12 col-md-2 text-center q-pa-0"
+      :class="{ 'q-mt-sm': $q.screen.xs || $q.screen.sm }"
+      v-else
+    >
+      <ProfileReport />
+    </q-card-section>
   </q-card>
 </template>
 
 <script>
 import { ref } from "vue";
 import { authentication } from "../store/modules/authentication";
+import ProfileReport from "../layouts/profileReport.vue";
 
 export default {
+  components: {
+    ProfileReport,
+  },
   data: () => ({
     loadingDOM: true,
     review: {
@@ -98,11 +109,11 @@ export default {
       donations: _auth.donation_books,
       exchanges: _auth.replacement_books,
       loans: _auth.loan_books,
-    })
+    });
 
     return {
-      review
-    }
+      review,
+    };
   },
   methods: {},
   mounted() {
