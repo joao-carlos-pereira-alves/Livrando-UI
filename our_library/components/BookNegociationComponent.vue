@@ -1,5 +1,12 @@
 <template>
   <q-dialog v-model="openDialog" persistent>
+    <RatingComponent
+      v-model:open="openRatingDialog"
+      :book="book"
+      v-model:rating="book.rating"
+      v-if="openRatingDialog"
+      @evaluated="evaluated"
+    />
     <q-card style="min-width: min(85vw, 500px)">
       <q-card-section class="text-red-10 text-weight-bold">
         {{
@@ -17,7 +24,14 @@
             spinner-color="white"
             style="height: 140px; max-width: 150px"
           />
-          <q-rating class="q-mt-sm" size="1.8em" :max="5" color="yellow" />
+          <q-rating
+            v-model="book.rating"
+            class="q-mt-sm"
+            size="1.8em"
+            :max="5"
+            color="yellow"
+            @click="openRatingDialog = true"
+          />
         </div>
         <div class="col-12 col-sm-8 row">
           <div class="col-12 col-sm-6" :class="{ 'q-pr-sm': !$q.screen.xs }">
@@ -204,6 +218,7 @@
 <script>
 import NoImage from "../public/images/no_image.png";
 import { authentication } from "../store/modules/authentication";
+import RatingComponent from "./RatingComponent.vue";
 
 export default {
   props: {
@@ -223,6 +238,7 @@ export default {
   },
   components: {
     NoImage,
+    RatingComponent,
   },
   data: () => ({
     rules: {
@@ -240,6 +256,7 @@ export default {
     const config = useRuntimeConfig();
     const baseUrl = config.public.baseURL.replace("/api/v1", "");
     const noImage = NoImage;
+    const openRatingDialog = ref(false);
 
     const closeDialog = () => {
       emit("update:open", false);
@@ -287,12 +304,27 @@ export default {
       }
     };
 
+    const evaluated = () => {
+      openRatingDialog.value = false;
+      closeDialog();
+
+      $swal.fire({
+        position: "top-right",
+        icon: "success",
+        title: "Livro avaliado com sucesso!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    };
+
     return {
       baseUrl,
       noImage,
       updateTrade,
       closeDialog,
       _auth,
+      openRatingDialog,
+      evaluated
     };
   },
   methods: {

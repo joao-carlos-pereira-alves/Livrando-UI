@@ -11,13 +11,6 @@
             spinner-color="white"
             style="height: 140px; max-width: 150px"
           />
-          <q-rating
-            v-model="book.average_rating"
-            size="1.8em"
-            :max="5"
-            color="yellow"
-            disable
-          />
         </div>
         <div class="col-12 col-sm-8 row">
           <div class="col-12 col-sm-6" :class="{ 'q-pr-sm': !$q.screen.xs }">

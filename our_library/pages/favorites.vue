@@ -15,19 +15,7 @@
           v-else
         >
           <div
-            class="col-12 col-sm-12 col-md-2 row align-center justify-center"
-            :class="{ 'q-pr-md': $q.screen.md || $q.screen.lg || $q.screen.xl }"
-          >
-            <q-btn
-              class="text-white full-width"
-              style="background-color: brown"
-              @click="openBookForm = true"
-            >
-              Novos Livros
-            </q-btn>
-          </div>
-          <div
-            class="col-12 col-sm-12 col-md-2"
+            class="col-12 col-sm-2"
             :class="{
               'q-mt-md': $q.screen.sm || $q.screen.xs,
               'q-pr-md': $q.screen.md || $q.screen.lg || $q.screen.xl,
@@ -57,7 +45,7 @@
             </q-btn>
           </div>
           <div
-            class="col-12 col-sm-12 col-md-8 col-lg-8 row justify-center"
+            class="col-12 col-sm-10 row justify-center"
             :class="{ 'q-mt-md': $q.screen.sm || $q.screen.md || $q.screen.xs }"
           >
             <q-input
@@ -80,7 +68,7 @@
         >
           <q-skeleton type="rect" class="text col-2" v-if="loadingDOM" />
           <div class="col-6 text-red-10 text-h4 text-weight-bold" v-else>
-            Novos
+            Meus favoritos
           </div>
         </q-card-section>
         <q-card-section class="col-12">

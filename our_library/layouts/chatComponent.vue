@@ -8,7 +8,7 @@
         <q-list
           bordered
           class="rounded-borders q-pr-sm"
-          style="overflow-x: auto; max-height: 300px"
+          style="overflow-x: auto; max-height: 100%"
         >
           <q-item-label header>Suas conversas</q-item-label>
           <q-item
