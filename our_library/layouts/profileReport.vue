@@ -1,6 +1,13 @@
 <template>
   <div class="q-pa-md q-gutter-sm">
-    <q-btn class="full-width" style="height: 45px;" label="Relatório" color="red-10" @click="report = true" />
+    <q-btn
+      class="full-width"
+      style="height: 45px"
+      icon="book"
+      label="Relatório"
+      color="red-10"
+      @click="report = true"
+    />
 
     <q-dialog v-model="report">
       <q-skeleton
@@ -23,7 +30,14 @@
           </thead>
           <tbody>
             <tr v-for="negotiation in negotiations" :key="negotiation.id">
-              <td class="text-left">{{ getStatus(negotiation.status) }}</td>
+              <td class="text-left">
+                <q-chip
+                  :color="getStatus(negotiation.status).color"
+                  text-color="white"
+                >
+                  {{ getStatus(negotiation.status).label }}
+                </q-chip>
+              </td>
               <td class="text-left">{{ negotiation.book?.title }}</td>
               <td class="text-left">{{ getCategory(negotiation.category) }}</td>
               <td class="text-left">{{ negotiation.negociation_date }}</td>
@@ -50,9 +64,21 @@ export default {
   },
   methods: {
     getStatus(status) {
-      if (status == "pending") return "Pendente";
-      if (status == "accepted") return "Aceita";
-      if (status == "completed") return "Completa";
+      if (status == "pending")
+        return {
+          color: "yellow-9",
+          label: "Pendente",
+        };
+      if (status == "accepted")
+        return {
+          color: "blue",
+          label: "Aceita",
+        };
+      if (status == "completed")
+        return {
+          color: "green",
+          label: "Finalizada",
+        };
     },
     getCategory(category) {
       if (category == "replacement") return "Empréstimo";
