@@ -44,9 +44,6 @@ const _inlineRuntimeConfig = {
     "routeRules": {
       "/__nuxt_error": {
         "cache": false
-      },
-      "/pages/Login.vue": {
-        "ssr": false
       }
     }
   },

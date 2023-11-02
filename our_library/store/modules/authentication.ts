@@ -131,7 +131,9 @@ export const authentication = defineStore("authentication", {
       router.push({ name: "Login" });
     },
     updateUser(user: Object) {
-      this._auth = user;
+      const token = this._auth.token
+      this._auth = Object.assign(user, { token: token });
+
       localStorage._auth = JSON.stringify(this._auth);
     },
   },

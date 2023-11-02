@@ -38,7 +38,7 @@
         <div
           class="col-12 col-sm-12 col-md-12 col-lg-11 row items-start q-pt-md"
         >
-          <div class="col-12 col-sm-12 col-md-7 col-lg-3 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-file
               outlined
               v-model="user.avatar"
@@ -56,7 +56,7 @@
               </template>
             </q-file>
           </div>
-          <div class="col-12 col-sm-12 col-md-7 col-lg-3 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -125,7 +125,7 @@
               color="secondary"
             />
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
+          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm" :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -136,7 +136,6 @@
               v-else
               type="text"
               outlined
-              :mask="editable ? '(##) # ####-####' : ''"
               label="Celular"
               placeholder="Insira um Celular"
               lazy-rules
@@ -205,7 +204,6 @@
               lazy-rules
               v-model="user.cpf"
               dense
-              :mask="editable ? '###.###.###-##' : ''"
               :rules="[rules.required]"
               :disable="!editable"
               @keypress.enter="onSubmit"
@@ -235,16 +233,20 @@ const { _auth, updateUser } = authentication();
 const user = ref(_auth);
 const baseUrl = config.public.baseURL.replace("/api/v1", "");
 
+function isFile(input) {
+  return input instanceof File;
+}
+
 async function onSubmit() {
+  if (!isFile(user?.value?.avatar)) delete user.value.avatar;
+  if (user?.value?.avatar?.length) user.value.avatar = user.value.avatar[0];
+
   const form = Object.entries(user.value).reduce((acc, [key, value]) => {
     if (value !== "") {
       acc[key] = value;
     }
     return acc;
   }, {});
-
-  if (user?.avatar?.length == 0) delete user.avatar;
-  if (user?.avatar?.length) user.avatar = user.avatar[0];
 
   const formData = new FormData();
 
@@ -253,7 +255,7 @@ async function onSubmit() {
   });
 
   try {
-    const { data, status } = await useApi("/users/" + user.value.id, {
+    const { data, status, error } = await useApi("/users/" + user.value.id, {
       method: "put",
       lazy: true,
       body: formData,
@@ -275,12 +277,11 @@ async function onSubmit() {
     }
 
     if (status?.value == "error") {
-      if (error?.value?.data?.base) {
-        const errorMessage = error.value.data.base;
+      if (error?.value?.data) {
         $swal.fire({
           position: "top-end",
           icon: "error",
-          title: errorMessage + ".",
+          title: "Por favor, envie valores válidos.",
           showConfirmButton: false,
           timer: 3000,
         });

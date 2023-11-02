@@ -3,6 +3,11 @@
     class="shadow-0 row card"
     style="background-color: rgba(255, 255, 255, 0.6)"
   >
+    <ReportComponent
+      v-model:open="currentReportUser.open"
+      :reported-user="currentReportUser.reportedUser"
+      v-if="currentReportUser.open"
+    />
     <q-card-section class="col-12 col-sm-12 col-md-4 q-pr-none">
       <q-card class="chat-section">
         <q-list
@@ -79,13 +84,30 @@
               />
             </q-avatar>
           </div>
-          <div class="col-10 col-sm-10 col-lg-10 row q-pl-md">
-            <div class="col-12">
+          <div class="col-10 col-sm-10 col-lg-11 row q-pl-md">
+            <div class="col-11">
               {{
                 currentChat?.users?.filter(
                   (user) => user.id != currentUserId
                 )[0]?.name || "Desconhecido"
               }}
+            </div>
+            <div class="col-1 text-right">
+              <q-icon
+                class="link"
+                name="report"
+                size="sm"
+                color="red"
+                @click="
+                  setReportUser(
+                    currentChat?.users?.filter(
+                      (user) => user.id != currentUserId
+                    )[0]
+                  )
+                "
+              >
+                <q-tooltip> Denunciar usuário </q-tooltip>
+              </q-icon>
             </div>
             <div class="col-12 text-caption text-grey">
               {{ currentChat?.another_user_online ? "Online" : "Offline" }}
@@ -151,6 +173,7 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { authentication } from "../store/modules/authentication";
 import NoImage from "../public/images/user_not_found.png";
+import ReportComponent from "../components/ReportComponent.vue";
 
 const config = useRuntimeConfig();
 const chatMessage = ref(null);
@@ -171,6 +194,10 @@ const chatMessagesPagination = ref({
 });
 const baseUrl = config.public.baseURL.replace("/api/v1", "");
 let socket;
+const currentReportUser = ref({
+  open: false,
+  reportedUser: null,
+});
 
 function ws() {
   // Websocket settings
@@ -379,6 +406,13 @@ const setLastMessageChat = (chat_id, message) => {
 };
 
 const clearInputMessage = () => (chatMessage.value = "");
+
+const setReportUser = (reportedUser) => {
+  currentReportUser.value = {
+    open: true,
+    reportedUser: reportedUser,
+  };
+};
 
 onMounted(() => {
   getChats();

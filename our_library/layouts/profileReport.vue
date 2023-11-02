@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md q-gutter-sm">
-    <q-btn label="Relatório" color="red-10" @click="report = true" />
+    <q-btn class="full-width" style="height: 45px;" label="Relatório" color="red-10" @click="report = true" />
 
     <q-dialog v-model="report">
       <q-skeleton
@@ -70,7 +70,6 @@ export default {
 
         if (data?.value) {
           this.negotiations = data.value;
-          console.log(this.negotiations);
         }
       } catch (error) {
         console.error(error);

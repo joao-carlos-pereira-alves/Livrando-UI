@@ -88,7 +88,7 @@ const currentImageUrl = ref(null)
 
 const getTrades = async () => {
   try {
-    const { data, execute, status } = useApi("/trades", {
+    const { data, execute, status } = await useApi("/trades", {
       method: "get",
     });
 

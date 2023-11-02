@@ -16,8 +16,8 @@
         <q-skeleton type="rect" width="100%" height="75px" v-if="loadingDOM" />
         <ProfileReviewComponent v-else />
       </div>
-      <div class="col-12 col-sm-12 col-md-4" :class="{'q-pr-sm': loadingDOM}">
-        <q-skeleton type="rect" width="100%" height="150px" v-if="loadingDOM" />
+      <div class="col-12 col-sm-12 col-md-4">
+        <q-skeleton type="rect" class="q-mb-md q-pr-sm" width="100%" height="150px" v-if="loadingDOM" />
         <ProfileNegociationComponent v-else />
       </div>
       <div class="col-12 col-sm-12 col-md-8 q-mb-md" :class="{'q-pl-sm': !$q.screen.xs && !$q.screen.sm, 'q-mt-sm': ($q.screen.xs || $q.screen.sm) && !loadingDOM }">

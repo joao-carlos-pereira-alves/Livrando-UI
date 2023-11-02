@@ -6,13 +6,10 @@ export default defineNuxtConfig({
       baseWsUrl: process.env.BASE_WS_URL
     },
   },
-  routeRules: {
-    "/pages/Login.vue": { ssr: false },
-  },
   devtools: {
     enabled: true,
   },
   components: [
     './layouts/global-components'
-  ]
+  ],
 });

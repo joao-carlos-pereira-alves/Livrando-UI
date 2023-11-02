@@ -7,7 +7,7 @@
           style="height: 25px; max-width: 250px"
           v-if="loadingDOM"
         />
-        <span class="toolbar-logo-title text-red-10" v-else>OUR LIBRARY</span>
+        <span class="toolbar-logo-title text-red-10" v-else>LIVRANDO</span>
       </div>
       <div class="col">
         <q-tabs no-caps class="text-black">
@@ -21,8 +21,9 @@
       <div class="col row justify-end q-pb-sm items-center">
         <q-skeleton type="QAvatar" v-if="loadingDOM" />
         <q-avatar class="toolbar-actions" size="38px" v-else>
-          <img
+          <q-img
             :src="_auth?.avatar?.url ? baseUrl + _auth.avatar.url : NoImage"
+            fit="contain"
           />
         </q-avatar>
         <q-skeleton
