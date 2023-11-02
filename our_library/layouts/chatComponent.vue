@@ -75,8 +75,14 @@
             <q-avatar size="55px">
               <q-img
                 :src="
-                  currentChat?.image?.url
-                    ? baseUrl + currentChat.image.url
+                  currentChat &&
+                  currentChat?.users?.filter(
+                    (user) => user.id != currentUserId
+                  )[0]?.avatar?.url
+                    ? baseUrl +
+                      currentChat?.users?.filter(
+                        (user) => user.id != currentUserId
+                      )[0]?.avatar?.url
                     : NoImage
                 "
                 spinner-color="white"

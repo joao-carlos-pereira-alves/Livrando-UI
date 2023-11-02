@@ -2,12 +2,12 @@
   <q-page padding :class="{ 'background-image row items-center': !loadingDOM }">
     <div class="overlay" v-if="loadingDOM">
       <q-circular-progress
-      indeterminate
-      rounded
-      size="50px"
-      color="lime-5"
-      class="q-ma-md"
-    />
+        indeterminate
+        rounded
+        size="50px"
+        color="lime-5"
+        class="q-ma-md"
+      />
     </div>
     <q-card class="" style="width: min(85vw, 500px)" v-else>
       <q-card-section>

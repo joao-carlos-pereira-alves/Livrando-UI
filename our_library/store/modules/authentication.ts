@@ -29,7 +29,7 @@ export const authentication = defineStore("authentication", {
         localStorage._auth = JSON.stringify({});
         this._auth = {};
 
-        const { data, status } = await useApi("/login", {
+        const { data, status, error } = await useApi("/login", {
           method: "post",
           body: {
             user: user,
@@ -53,7 +53,7 @@ export const authentication = defineStore("authentication", {
           });
         }
 
-        if (status?.value == "error") {
+        if (status?.value == "error" && !error?.value?.data?.error) {
           Swal.fire({
             position: "top-end",
             icon: "error",

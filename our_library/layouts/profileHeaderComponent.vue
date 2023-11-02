@@ -188,7 +188,7 @@
               </template>
             </q-input>
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
+          <!-- <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -209,7 +209,7 @@
               @keypress.enter="onSubmit"
               color="secondary"
             />
-          </div>
+          </div> -->
         </div>
       </q-form>
     </q-card-section>
@@ -253,6 +253,8 @@ async function onSubmit() {
   Object.keys(form).forEach((key) => {
     formData.append(`user[${key}]`, form[key]);
   });
+
+  formData.delete("user[cpf]");
 
   try {
     const { data, status, error } = await useApi("/users/" + user.value.id, {
