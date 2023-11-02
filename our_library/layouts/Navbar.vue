@@ -7,7 +7,7 @@
           style="height: 25px; max-width: 250px"
           v-if="loadingDOM"
         />
-        <span class="toolbar-logo-title text-red-10" v-else>LIVRANDO</span>
+        <strong class="toolbar-logo-title text-red-10" v-else>livrando;</strong>
       </div>
       <div class="col">
         <q-tabs no-caps class="text-black">
@@ -56,8 +56,8 @@
 
 <script setup>
 import { authentication } from "../store/modules/authentication";
-import { ref, onMounted, computed, defineAsyncComponent  } from "vue";
-import NoImage from "../public/images/user_not_found.png"
+import { ref, onMounted, computed, defineAsyncComponent } from "vue";
+import NoImage from "../public/images/user_not_found.png";
 
 const loadingDOM = ref(true);
 const useAuthentication = authentication();
@@ -65,7 +65,7 @@ const config = useRuntimeConfig();
 
 const { logout } = useAuthentication;
 const _auth = computed(() => useAuthentication._auth);
-const baseUrl = config.public.baseURL.replace('/api/v1', '')
+const baseUrl = config.public.baseURL.replace("/api/v1", "");
 
 onMounted(() => {
   loadingDOM.value = false;
@@ -84,7 +84,7 @@ onMounted(() => {
   justify-content: center;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
   font-family: Petrona;
-  font-size: 22px;
+  font-size: 26px;
   font-style: normal;
   font-weight: 500;
   line-height: 110%;
