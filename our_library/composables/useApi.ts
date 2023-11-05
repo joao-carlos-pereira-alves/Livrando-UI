@@ -1,5 +1,5 @@
 import { authentication } from "../store/modules/authentication";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 export const useApi: typeof useFetch = (request, opts?) => {
   const config = useRuntimeConfig();

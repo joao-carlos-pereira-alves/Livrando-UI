@@ -277,7 +277,7 @@ export default {
           $swal.fire({
             position: "center",
             icon: "success",
-            title: "Negociação concluída!",
+            title: "Negociação realizada com sucesso!",
             showConfirmButton: false,
             timer: 1500,
           });
@@ -324,7 +324,7 @@ export default {
       closeDialog,
       _auth,
       openRatingDialog,
-      evaluated
+      evaluated,
     };
   },
   methods: {

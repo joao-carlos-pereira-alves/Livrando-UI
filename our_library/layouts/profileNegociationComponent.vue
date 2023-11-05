@@ -21,9 +21,7 @@
     >
       <div class="col-12 col-sm-12 col-md-4 col-lg-3">
         <q-img
-          :src="
-            getImageUrl(trade)
-          "
+          :src="getImageUrl(trade)"
           @error="getImageUrl(trade, true)"
           spinner-color="white"
           class="image full-height"
@@ -35,20 +33,33 @@
       >
         <div class="col-12 text-weight-bold q-mb-md">
           {{ trade?.book?.title || "Não definido" }}
+          <q-btn
+            class="float-right"
+            @click.once="removeTrades(trade.id)"
+            round
+            dense
+            color="red-10"
+            icon="delete"
+          />
           <br />
           <span class="text-caption">
             By:
             {{ trade?.book?.author || "Desconhecido" }}
           </span>
         </div>
+
         <div class="col-12 col-sm-12 col-md-12 col-lg-6">
           <q-btn
-            :style="trade.status == 'completed' ? 'background-color: green;' : 'background-color: #ffcc00'"
+            :style="
+              trade.status == 'completed'
+                ? 'background-color: green;'
+                : 'background-color: #ffcc00'
+            "
             class="full-width"
             :class="{ 'text-white': trade.status == 'completed' }"
             @click="setCurrentTrade(trade)"
-            >
-            {{ trade.status == 'completed' ? 'Finalizado' : 'Ver mais' }}</q-btn
+          >
+            {{ trade.status == "completed" ? "Finalizado" : "Ver mais" }}</q-btn
           >
         </div>
         <div
@@ -77,6 +88,7 @@ import { ref, onBeforeMount } from "vue";
 import BookNegociationComponent from "../components/BookNegociationComponent.vue";
 import { authentication } from "../store/modules/authentication";
 import NoImage from "../public/images/no_image.png";
+import Swal from "sweetalert2";
 
 const config = useRuntimeConfig();
 const baseUrl = config.public.baseURL.replace("/api/v1", "");
@@ -84,7 +96,7 @@ const trades = ref([]);
 const currentTrade = ref(null);
 const openNegociationComponent = ref(false);
 const { _auth } = authentication();
-const currentImageUrl = ref(null)
+const currentImageUrl = ref(null);
 
 const getTrades = async () => {
   try {
@@ -104,31 +116,58 @@ const getTrades = async () => {
   }
 };
 
+const removeTrades = async (tradeId) => {
+  try {
+    const { data, execute, status } = await useApi("/trades/" + tradeId, {
+      method: "delete",
+    });
+
+    if (status?.value == "success") {
+      trades.value = trades.value.filter((trade) => trade.id != tradeId);
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Negociação removida com sucesso!",
+        timer: 3000,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    Swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Ação não realizada.",
+      showConfirmButton: false,
+      timer: 3000,
+    });
+  }
+};
+
 const setCurrentTrade = (trade) => {
   currentTrade.value = trade;
   openNegociationComponent.value = true;
 };
 
 const updateTrade = (status) => {
-  const trade = trades.value.find((e) => e.id == currentTrade.value.id)
-  trade.status = status
+  const trade = trades.value.find((e) => e.id == currentTrade.value.id);
+  trade.status = status;
 
   clearCurrentTrade();
-}
+};
 
-const clearCurrentTrade = () => currentTrade.value = {};
+const clearCurrentTrade = () => (currentTrade.value = {});
 
 const getImageUrl = (trade, error = false) => {
   if (trade?.book?.image?.url && !error) {
-    currentImageUrl.value = baseUrl + trade.book.image.url
+    currentImageUrl.value = baseUrl + trade.book.image.url;
   }
 
   if (error) {
-    currentImageUrl.value = NoImage
+    currentImageUrl.value = NoImage;
   }
 
   return currentImageUrl.value;
-}
+};
 
 onBeforeMount(() => {
   getTrades();
