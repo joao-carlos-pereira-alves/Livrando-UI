@@ -25,7 +25,7 @@
           class="col-6 col-sm-2 col-md-2 q-pr-sm text-start"
           v-for="category in book.categories"
           :key="category"
-          :class="{'q-mr-md': $q.screen.xs }"
+          :class="{ 'q-mr-md': $q.screen.xs }"
         >
           <q-badge class="text-center" style="font-size: 12px">
             {{ category }}
@@ -72,6 +72,7 @@
 import { toRefs, ref, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
 import NoImage from "../public/images/no_image.png";
+import Swal from "sweetalert2";
 
 export default {
   props: {
@@ -114,8 +115,34 @@ export default {
         });
 
         liked.value = true;
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Livro adicionado como favorito com sucesso!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       } catch (error) {
-        console.error(error);
+        if (error?.value?.data?.errors) {
+          const errors = error.value.data.errors;
+          const errorMessages = [];
+
+          Object.keys(errors).forEach((key) => {
+            const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+            errors[key].forEach((error) => {
+              const errorMessage = `${formattedKey}: ${error}`;
+              errorMessages.push(errorMessage);
+            });
+          });
+
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: errorMessages.join("\n."),
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
       }
     };
 

@@ -75,7 +75,6 @@
               :rules="[rules.required]"
               :disable="!editable"
               color="secondary"
-              @keypress.enter="onSubmit"
             />
           </div>
           <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
@@ -96,7 +95,6 @@
               dense
               :rules="[rules.required]"
               :disable="!editable"
-              @keypress.enter="onSubmit"
               color="secondary"
             >
               <template v-slot:prepend>
@@ -121,11 +119,13 @@
               v-model="user.password"
               dense
               :disable="!editable"
-              @keypress.enter="onSubmit"
               color="secondary"
             />
           </div>
-          <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm" :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }">
+          <div
+            class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm"
+            :class="{ 'q-mt-md': $q.screen.sm || $q.screen.xs }"
+          >
             <q-skeleton
               type="QToolbar"
               class="text-subtitle1"
@@ -158,12 +158,10 @@
               v-else
               dense
               outlined
+              label="Data de nascimento"
               lazy-rules
               v-model="user.birth_date"
-              mask="date"
-              :rules="['date']"
               :disable="!editable"
-              placeholder="0000/00/00"
               color="secondary"
             >
               <template v-slot:append>
@@ -173,7 +171,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="user.birth_date">
+                    <q-date v-model="user.birth_date" mask="dd/mm/yyyy">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -188,6 +186,13 @@
               </template>
             </q-input>
           </div>
+          <q-btn
+            color="red-10"
+            :disable="!editable"
+            @click="onSubmit()"
+            label="Salvar"
+            class="float-right"
+          />
           <!-- <div class="col-12 col-sm-12 col-md-6 col-lg-3 q-px-sm">
             <q-skeleton
               type="QToolbar"
@@ -237,7 +242,17 @@ function isFile(input) {
   return input instanceof File;
 }
 
-async function onSubmit() {
+onMounted(() => {
+  loadingDOM.value = false;
+  formatDate();
+});
+
+const formatDate = () => {
+  let date = user.value.birth_date.split("-").reverse().join("/");
+  user.value.birth_date = date;
+};
+
+const onSubmit = async () => {
   if (!isFile(user?.value?.avatar)) delete user.value.avatar;
   if (user?.value?.avatar?.length) user.value.avatar = user.value.avatar[0];
 
@@ -292,9 +307,5 @@ async function onSubmit() {
   } catch (error) {
     console.error(error);
   }
-}
-
-onMounted(() => {
-  loadingDOM.value = false;
-});
+};
 </script>

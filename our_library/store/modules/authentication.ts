@@ -129,9 +129,16 @@ export const authentication = defineStore("authentication", {
       const router = useRouter();
       localStorage.removeItem("_auth");
       router.push({ name: "Login" });
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Logout realizado com sucesso.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     },
     updateUser(user: Object) {
-      const token = this._auth.token
+      const token = this._auth.token;
       this._auth = Object.assign(user, { token: token });
 
       localStorage._auth = JSON.stringify(this._auth);

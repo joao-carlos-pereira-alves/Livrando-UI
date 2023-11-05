@@ -233,7 +233,12 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Cor de fundo e opacidade do overlay */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.7
+  ); /* Cor de fundo e opacidade do overlay */
   display: flex;
   justify-content: center; /* Centralizar horizontalmente */
   align-items: center; /* Centralizar verticalmente */

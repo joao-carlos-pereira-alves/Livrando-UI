@@ -183,8 +183,7 @@
 <script setup lang="ts">
 import { ref, computed, defineEmits } from "vue";
 import { authentication } from "../store/modules/authentication";
-
-const { $swal } = useNuxtApp();
+import Swal from "sweetalert2";
 const { _auth } = authentication();
 const currentUserId = _auth.id;
 const props = defineProps({
@@ -230,7 +229,7 @@ const languages = ref([
   "Tailandês",
   "Indonésio",
   "Malaio",
-  "Suaíli"
+  "Suaíli",
 ]);
 const loadingCreateBook = ref(false);
 
@@ -330,10 +329,10 @@ const createBook = async () => {
 
         if (data?.value) {
           resetForm();
-          $swal.fire({
+          Swal.fire({
             position: "top-end",
             icon: "success",
-            title: "Ação realizada com sucesso!",
+            title: "Livro cadastrado com sucesso!",
             showConfirmButton: false,
             timer: 1500,
           });
@@ -343,7 +342,7 @@ const createBook = async () => {
         }
       } catch (error) {
         console.error("error", error);
-        $swal.fire({
+        Swal.fire({
           position: "top-end",
           icon: "error",
           title: "Ação não realizada.",
