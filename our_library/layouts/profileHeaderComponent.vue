@@ -171,7 +171,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="user.birth_date" mask="dd/mm/yyyy">
+                    <q-date v-model="user.birth_date">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
