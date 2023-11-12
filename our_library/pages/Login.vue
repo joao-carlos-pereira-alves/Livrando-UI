@@ -181,10 +181,12 @@ const onSubmit = () => {
   } else {
     loginForm.value.validate().then(async (res: boolean) => {
       if (res && process.client) {
-        login(userAthentication.value);
+        await login(userAthentication.value);
       }
-    });
+    }).catch((e) => e);
   }
+
+  loginForm.value.resetValidation();
 };
 
 onMounted(() => {

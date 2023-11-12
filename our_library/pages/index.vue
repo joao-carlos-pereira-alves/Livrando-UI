@@ -128,7 +128,7 @@
               v-for="(book, index) in books"
               :key="book.id"
             >
-              <BookComponent :book="book" @trade="setCurrentTrade" />
+              <BookComponent :book="book" @trade="setCurrentTrade" :categories="categories" @deleted="removeBook" />
             </div>
             <div class="text-center col-12" v-if="!books.length">
               Por enquanto está vazio.
@@ -181,7 +181,7 @@
               v-for="(book, index) in popularBooks"
               :key="book.id"
             >
-              <BookComponent :book="book" @trade="setCurrentTrade" />
+              <BookComponent :book="book" @trade="setCurrentTrade" :categories="categories" @deleted="removePopularBook" />
             </div>
             <div class="text-center col-12" v-if="!popularBooks.length">
               Por enquanto está vazio.
@@ -353,6 +353,14 @@ const setCurrentTrade = (book: Object) => {
 const unshiftBook = (book: object) => {
   books.value.unshift(book);
 };
+
+const removeBook = (book_id: any) => {
+  books.value = books.value.filter((book) => book.id != book_id);
+}
+
+const removePopularBook = (book_id: any) => {
+  popularBooks.value = popularBooks.value.filter((book) => book.id != book_id);
+}
 
 onBeforeMount(() => {
   getBooks();
