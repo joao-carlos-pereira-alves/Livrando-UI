@@ -22,7 +22,7 @@ export const useApi: typeof useFetch = (request, opts?) => {
       }
     },
     onResponseError({ request, response, options }) {
-      if (response?._data?.error) {
+      if (response?._data?.error && !request.include('/login')) {
         Swal.fire({
           position: "top-end",
           icon: "error",

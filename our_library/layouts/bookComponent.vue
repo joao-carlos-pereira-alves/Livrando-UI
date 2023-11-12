@@ -1,5 +1,17 @@
 <template>
   <q-card class="shadow-0">
+    <UpdateBookComponent
+      v-model:open="updateBookDialog"
+      :book="book"
+      :categories="categories"
+      v-if="updateBookDialog"
+    />
+    <DeleteBookComponent
+      v-model:open="deleteBookDialog"
+      :book="book"
+      @deleted="emitDeletedEvent"
+      v-if="deleteBookDialog"
+    />
     <q-card-section class="book-card q-pa-lg row items-center justify-center">
       <q-img
         :src="book?.image?.url ? baseUrl + book.image.url : noImage"
@@ -9,23 +21,44 @@
       />
     </q-card-section>
     <q-card-section class="row q-pl-none">
-      <div class="col-12 q-mb-sm">
-        <q-rating
-          v-model="book.rating"
-          class="q-mt-sm"
-          size="1.8em"
-          :max="5"
-          color="yellow"
-          disable
-          @click="openRatingDialog = true"
-        />
+      <div class="col-12 q-mb-sm row items-center">
+        <div class="col-8">
+          <q-rating
+            v-model="book.rating"
+            class="q-mt-sm"
+            size="1.8em"
+            :max="5"
+            color="yellow"
+            disable
+            @click="openRatingDialog = true"
+          />
+        </div>
+        <div class="col-4 text-right" v-if="book?.added_by_me">
+          <q-icon
+            name="edit"
+            size="sm"
+            class="link"
+            @click="updateBookDialog = true"
+          >
+            <q-tooltip> Editar </q-tooltip>
+          </q-icon>
+          <q-icon
+            name="delete"
+            color="red"
+            size="sm"
+            class="link"
+            @click="deleteBookDialog = true"
+          >
+            <q-tooltip> Excluir </q-tooltip>
+          </q-icon>
+        </div>
       </div>
       <div class="col-12 row">
         <div
           class="col-6 col-sm-2 col-md-2 q-pr-sm text-start"
           v-for="category in book.categories"
           :key="category"
-          :class="{'q-mr-md': $q.screen.xs }"
+          :class="{ 'q-mr-md': $q.screen.xs }"
         >
           <q-badge class="text-center" style="font-size: 12px">
             {{ category }}
@@ -72,6 +105,8 @@
 import { toRefs, ref, onMounted } from "vue";
 import { authentication } from "../store/modules/authentication";
 import NoImage from "../public/images/no_image.png";
+import UpdateBookComponent from "../components/UpdateBookComponent.vue";
+import DeleteBookComponent from "../components/DeleteBookComponent.vue";
 
 export default {
   props: {
@@ -79,9 +114,15 @@ export default {
       required: true,
       type: Object,
     },
+    categories: {
+      required: true,
+      type: Array,
+    },
   },
   components: {
     NoImage,
+    UpdateBookComponent,
+    DeleteBookComponent,
   },
   setup(props, context) {
     const config = useRuntimeConfig();
@@ -96,8 +137,15 @@ export default {
     };
     const baseUrl = config.public.baseURL.replace("/api/v1", "");
     const noImage = NoImage;
-    const emitDeslikEvent = (book_id) => {
+    const updateBookDialog = ref(false);
+    const deleteBookDialog = ref(false);
+
+    const emitDeslikeEvent = (book_id) => {
       context.emit("deslike", book_id);
+    };
+
+    const emitDeletedEvent = (book_id) => {
+      context.emit("deleted", book_id);
     };
 
     const like = async () => {
@@ -131,7 +179,7 @@ export default {
         });
 
         liked.value = false;
-        emitDeslikEvent(book_id);
+        emitDeslikeEvent(book_id);
       } catch (error) {
         console.error(error);
       }
@@ -145,6 +193,8 @@ export default {
       }
     };
 
+    const unshiftBook = (book_id) => {};
+
     onMounted(() => {
       liked.value = book.value?.favorited;
     });
@@ -157,6 +207,9 @@ export default {
       handle_like,
       baseUrl,
       noImage,
+      updateBookDialog,
+      deleteBookDialog,
+      emitDeletedEvent,
     };
   },
 };
