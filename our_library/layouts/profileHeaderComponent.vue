@@ -248,7 +248,7 @@ onMounted(() => {
 });
 
 const formatDate = () => {
-  let date = user.value.birth_date.split("-").reverse().join("/");
+  let date = user?.value?.birth_date?.split("-")?.reverse()?.join("/");
   user.value.birth_date = date;
 };
 
